@@ -12,7 +12,7 @@
 
 // MARK: "USE TWO KINECTS" SWITCH (COMMENT TO USE JUST ONE)
 
-#define USE_TWO_KINECTS
+//#define USE_TWO_KINECTS
 
 #define NEGATIVE 0
 #define NEUTRAL  1
@@ -26,10 +26,10 @@
 #define YELLOW 0xFAEB34
 #define RED    0xED2849
 
-#define FBO_W 1024
-#define FBO_H 768
-#define OUTPUT_SCREEN_W 1280
-#define OUTPUT_SCREEN_H 768
+#define OUTPUT_SCREEN_W 576
+#define OUTPUT_SCREEN_H 288
+#define FBO_W 960
+#define FBO_H 288
 
 
 // --------------------------------------------
@@ -154,6 +154,9 @@ class testApp : public ofBaseApp{
     
         float   fDensity, fBounce, fFriction;
         
+        float fProx;
+        float fMinParticleSize, fMaxParticleSize;
+        
 
 // --------------------------------------------
 // MARK: DATA
@@ -177,7 +180,9 @@ class testApp : public ofBaseApp{
         void addParticles(int scope, int type, int num);
         void addParticles(int scope, int type, int num, 
                           float density, float bounce, float friction);   
-        float getMinParticleSize(int particlesCount);
+        float getMinParticleSize(int particlesCount, int maxParticles);
+    
+    void addGhosts();
     
         bool isDebugingBox2d;
         float personalMinParticleSize,
@@ -187,6 +192,9 @@ class testApp : public ofBaseApp{
         ofxBox2d				box2d;			//	the box2d world
         vector<CustomParticle>	b2dParticles;   //	box2d particles
         map<int, ofxBox2dRect>    b2dBlobs;
+    
+    bool bGhosts;
+        vector<ofxBox2dCircle>  b2dGhosts; // ghost particles
     
         ofVec2f personalCenter;
         ofVec2f neighborhoodCenter;
@@ -205,6 +213,8 @@ class testApp : public ofBaseApp{
 // --------------------------------------------
 // MARK: GRAPHICS
         ofFbo fbo;
+    
+        void drawPanels(ofFbo fbo);
     
 };
 

@@ -32,7 +32,7 @@ kinectCapture::kinectCapture() {
         norm4000[i] = ofNormalize(i, 0, 4000);
     }
     
-    iBufferSize = 15;
+    iBufferSize = 1;
     iCurBufferIdx = 0;
 
 }

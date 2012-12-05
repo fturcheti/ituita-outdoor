@@ -16,7 +16,7 @@
 #define KIN_W         640
 #define KIN_H         480
 #define KIN2_INTERS_W 320
-#define KIN_OUTPUT_W      960
+#define KIN_OUTPUT_W  960
 
 class kinectCapture {
     
