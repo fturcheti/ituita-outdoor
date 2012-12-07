@@ -31,9 +31,6 @@ kinectCapture::kinectCapture() {
     for (int i = 0; i < 4000; i++) {
         norm4000[i] = ofNormalize(i, 0, 4000);
     }
-    
-    iBufferSize = 1;
-    iCurBufferIdx = 0;
 
 }
 
@@ -130,26 +127,6 @@ void kinectCapture::setup(bool _bTwoKinects, int _iLeftKinectId, int _iRightKine
         
         bKinectsStarted = false;
         bKin2Refreshed = false;
-        
-        vector<ofPoint> allocator(KIN_H * KIN_OUTPUT_W, ofPoint(0,0,0));
-        
-        for (int i = 0; i < iBufferSize; i++) {
-            pointCloudBuffer.push_back(allocator);
-        }
-        
-        allocator.clear();
-        
-    }
-    
-    else {
-        
-        vector<ofPoint> allocator(KIN_H * KIN_W, ofPoint(0,0,0));
-        
-        for (int i = 0; i < iBufferSize; i++) {
-            pointCloudBuffer.push_back(allocator);
-        }
-        
-        allocator.clear();
         
     }
     
@@ -341,29 +318,20 @@ void kinectCapture::update() {
             // DO: ASSIGN NEW CLOUD TO <POINT CLOUD>
             
             pointCloud.clear();
-            pointCloudBuffer[iCurBufferIdx].clear();
                      
             for (int y = 0; y < KIN_H; y++) {
                 for (int x = KIN_OUTPUT_W; x > 0; x--) {
                     if (x <= KIN2_INTERS_W) {
-                        pointCloudBuffer[iCurBufferIdx].push_back(ofPoint(normWidth(KIN_OUTPUT_W - x, true), normHeight(y), normDepth((int)kinect1.getDistanceAt(x, y))));
+                        pointCloud.push_back(ofPoint(normWidth(x, true), normHeight(y), normDepth((int)kinect1.getDistanceAt(x, y))));
                     }
                     else if (x > KIN2_INTERS_W && x <= KIN_W) {
                         int minDist = kinect1.getDistanceAt(x, y) < kinect2.getDistanceAt(x - KIN2_INTERS_W, y) ? kinect1.getDistanceAt(x, y) : kinect2.getDistanceAt(x - KIN2_INTERS_W, y);
-                        pointCloudBuffer[iCurBufferIdx].push_back(ofPoint(normWidth(KIN_OUTPUT_W - x, true), normHeight(y), normDepth(minDist)));
+                        pointCloud.push_back(ofPoint(normWidth(x, true), normHeight(y), normDepth(minDist)));
                     }
                     else if (x > KIN2_INTERS_W) {
-                        pointCloudBuffer[iCurBufferIdx].push_back(ofPoint(normWidth(KIN_OUTPUT_W - x, true), normHeight(y), normDepth((int)kinect2.getDistanceAt(x - KIN2_INTERS_W, y))));
+                        pointCloud.push_back(ofPoint(normWidth(x, true), normHeight(y), normDepth((int)kinect2.getDistanceAt(x - KIN2_INTERS_W, y))));
                     }
-                    pointCloud.push_back(ofPoint(normWidth(KIN_OUTPUT_W - x, true), normHeight(y), avgBuffer(x, y)));
                 }
-            }
-            
-            if (iCurBufferIdx >= iBufferSize-1) {
-                iCurBufferIdx = 0;
-            }
-            else {
-                iCurBufferIdx++;
             }
             
         }
@@ -396,20 +364,11 @@ void kinectCapture::update() {
             // DO: ASSIGN NEW CLOUD TO <POINT CLOUD>
             
             pointCloud.clear();
-            pointCloudBuffer[iCurBufferIdx].clear();
             
             for (int y = 0; y < KIN_H; y++) {
                 for (int x = KIN_W; x > 0; x--) {
-                    pointCloudBuffer[iCurBufferIdx].push_back(ofPoint(normWidth(KIN_W - x), normHeight(y), normDepth((int)kinect1.getDistanceAt(x,y))));
-                    pointCloud.push_back(ofPoint(normWidth(KIN_W - x, true), normHeight(y), avgBuffer(x, y)));
+                    pointCloud.push_back(ofPoint(normWidth(x), normHeight(y), normDepth((int)kinect1.getDistanceAt(x,y))));
                 }
-            }
-            
-            if (iCurBufferIdx >= iBufferSize-1) {
-                iCurBufferIdx = 0;
-            }
-            else {
-                iCurBufferIdx++;
             }
             
         }
@@ -588,20 +547,6 @@ float kinectCapture::normDepth(int val) {
         return norm4000[val];
     }    
     
-}
-
-float kinectCapture::avgBuffer(float xPos, float yPos) {
-    float avgZ = 0;
-    for (int i = 0; i < iBufferSize; i++) {
-        if(bTwoKinects) {
-            avgZ += pointCloudBuffer[i][yPos * 960 + xPos].z;
-        }
-        else {
-            avgZ += pointCloudBuffer[i][yPos * 640 + xPos].z;
-        }
-    }
-    avgZ = avgZ / (float)iBufferSize;
-    return avgZ;
 }
 
 float kinectCapture::setInRangeWidth(float val, bool _bTwoKinects, bool isKinect2) {

@@ -6,7 +6,6 @@
 //
 
 #include "ituitaData.h"
-#include "ofMain.h"
 
 ituitaData::ituitaData() {
     initDataArrays();
@@ -32,39 +31,39 @@ void ituitaData::generateRandomValues(int min, int max) {
 // MARK: GETTERS FOR PERSONAL DATA
 
 int ituitaData::getPersonalNegatives() {
-    return personalData[0];
+    return personalData[NEGATIVE];
 }
 int ituitaData::getPersonalNeutrals() {
-    return personalData[1];
+    return personalData[NEUTRAL];
 }
 int ituitaData::getPersonalPositives() {
-    return personalData[2];
+    return personalData[POSITIVE];
 }
 
 // --------------------------------------------
 // MARK: GETTERS FOR NEIGHBOORHOOD DATA
 
 int ituitaData::getNeighborhoodNegatives() {
-    return neighborhoodData[0];
+    return neighborhoodData[NEGATIVE];
 }
 int ituitaData::getNeighborhoodNeutrals() {
-    return neighborhoodData[1];
+    return neighborhoodData[NEUTRAL];
 }
 int ituitaData::getNeighborhoodPositives() {
-    return neighborhoodData[2];
+    return neighborhoodData[POSITIVE];
 }
 
 // --------------------------------------------
 // MARK: GETTERS FOR CITY DATA
 
 int ituitaData::getCityNegatives() {
-    return cityData[0];
+    return cityData[NEGATIVE];
 }
 int ituitaData::getCityNeutrals() {
-    return cityData[1];
+    return cityData[NEUTRAL];
 }
 int ituitaData::getCityPositives() {
-    return cityData[2];
+    return cityData[POSITIVE];
 }
 
 

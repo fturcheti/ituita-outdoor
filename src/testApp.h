@@ -7,98 +7,34 @@
 #include "kinectCapture.h"
 #include "ituitaBlobTracker.h"
 #include "ituitaData.h"
+#include "Particle.h"
+#include "ParticlesPath.h"
 
-#include "ofxBox2d.h"
-
-// MARK: "USE TWO KINECTS" SWITCH (COMMENT TO USE JUST ONE)
-
-//#define USE_TWO_KINECTS
-
-#define NEGATIVE 0
-#define NEUTRAL  1
-#define POSITIVE 2
-
-#define PERSONAL     0
-#define NEIGHBORHOOD 1
-#define CITY         2
-
-#define GREEN  0x00B653
-#define YELLOW 0xFAEB34
-#define RED    0xED2849
 
 #define OUTPUT_SCREEN_W 576
 #define OUTPUT_SCREEN_H 288
 #define FBO_W 960
 #define FBO_H 288
 
-
-// --------------------------------------------
-// MARK : BOX2D CUSTOM DATA
-
-// This is were you can store anything you want.
-class Data {
-public:
-	ofColor color;
-	int		type;
-    int     scope;
-    ofVec2f attractionPoint;
-};
-
-
-// A Custom Particle extedning the box2d circle
-class CustomParticle : public ofxBox2dCircle {
-	
-public:
-	
-	void setupTheCustomData(int scope, int type, int attractionX, int attractionY) {
-		
-		static int colors[] = {RED, YELLOW, GREEN};
-		
-		// we are using a Data pointer because 
-		// box2d needs to have a pointer not 
-		// a referance
-		setData(new Data());
-		Data * cutomData = (Data*)getData();
-		
-        cutomData->scope = scope;
-		cutomData->type = type;
-		cutomData->color.setHex(colors[type]);
-        cutomData->attractionPoint.set(attractionX, attractionY);
-        
-        string log = "scope: " + ofToString(scope) + " / type: " + ofToString(type);
-        log += " / attractionPoint: " + ofToString(attractionX) + ", " + ofToString(attractionY);
-        ofLog(OF_LOG_VERBOSE, log);
-	}
-	
-	void draw() {
-		Data* cutomData = (Data*)getData();
-		if(cutomData) {
-			
-			// Evan though we know the data object lets just 
-			// see how we can get the data out from box2d
-			// you would use this when using a contact listener
-			// or tapping into box2d's solver.
-			float radius = getRadius();
-			ofPushMatrix();
-			ofTranslate(getPosition());
-			ofRotateZ(getRotation());
-			ofSetColor(cutomData->color);
-			ofFill();
-			ofCircle(0, 0, radius);			
-			ofPopMatrix();
-		}
-	}
-    
-};
-
+#define GREEN  0x00B653
+#define YELLOW 0xFAEB34
+#define RED    0xED2849
+#define GRAY   0x666666
 
 
 // ---------------------------------------------
+// MARK: "USE TWO KINECTS" SWITCH (COMMENT TO USE JUST ONE)
+// #define USE_TWO_KINECTS
+
+
+// ---------------------------------------------
+
 
 class testApp : public ofBaseApp{
     
 	public:
     
+// --------------------------------------------
 // MARK: OF BASICS
     
 		void setup();
@@ -127,8 +63,11 @@ class testApp : public ofBaseApp{
 // MARK: KINECT AND RELATED OBJECTS DECLARATION
     
         kinectCapture kinect;
-        bool      bLockKinTilt;
-        float     fKin1TiltAngle, fKin2TiltAngle;
+        bool          bLockKinTilt;
+        float         fKin1TiltAngle, fKin2TiltAngle;
+    
+        void drawKinectPointCloud();
+    
 // --------------------------------------------
 // MARK: INTERFACE VARIABLES
 
@@ -144,74 +83,51 @@ class testApp : public ofBaseApp{
 // --------------------------------------------
 // MARK: CONTROL VARIABLES
 
-        int     iLeftKinectId, iRightKinectId;
-        int     iFarThreshold, iNearThreshold;
-        int     iMinBlobSize, iMaxBlobSize, iMaxNumBlobs;
+        int   iLeftKinectId, iRightKinectId;
+        int   iFarThreshold, iNearThreshold;
+        int   iMinBlobSize, iMaxBlobSize, iMaxNumBlobs;
         
-        int     iMaxRandomParticles, iDeltaRandomParticles;
-        float   fAttractionForce;
-        bool    bResetData;
+        int   iFboAlpha;
     
-        float   fDensity, fBounce, fFriction;
+        int   fPathRadius;
+
+        int   iMaxRandomParticles, iDeltaRandomParticles;
+        bool  bResetData;
         
         float fProx;
         float fMinParticleSize, fMaxParticleSize;
         
-
 // --------------------------------------------
 // MARK: DATA
 
         ituitaData data;
-        int ppos, pneu, pneg;
-        int npos, nneu, nneg;
-        int cpos, cneu, cneg;
+        int personalData[3];
+        int neighborhoodData[3];
+        int cityData[3];
     
-// --------------------------------------------
-// MARK: SHADER
-        
-        ofShader shader;
-        bool    isFilterActive;
-        int     ledRatio;
-    
-// --------------------------------------------
-// MARK: BOX2D
-
         void setupData();
-        void addParticles(int scope, int type, int num);
-        void addParticles(int scope, int type, int num, 
-                          float density, float bounce, float friction);   
-        float getMinParticleSize(int particlesCount, int maxParticles);
     
-    void addGhosts();
-    
-        bool isDebugingBox2d;
-        float personalMinParticleSize,
-                neighborhoodMinParticleSize,
-                cityMinParticleSize;
-    
-        ofxBox2d				box2d;			//	the box2d world
-        vector<CustomParticle>	b2dParticles;   //	box2d particles
-        map<int, ofxBox2dRect>    b2dBlobs;
-    
-    bool bGhosts;
-        vector<ofxBox2dCircle>  b2dGhosts; // ghost particles
-    
-        ofVec2f personalCenter;
-        ofVec2f neighborhoodCenter;
-        ofVec2f cityCenter;
-    
-        vector<ofxBox2dJoint>	b2dJoints;			//	joints
-        ofxBox2dCircle personalAnchorLeft, personalAnchorRight, 
-                        personalAnchorBottom, personalAnchorTop;
-        ofxBox2dCircle neighborhoodAnchorLeft, neighborhoodAnchorRight, 
-                        neighborhoodAnchorBottom, neighborhoodAnchorTop;
-        ofxBox2dCircle cityAnchorLeft, cityAnchorRight,
-                        cityAnchorBottom, cityAnchorTop;
-    
-    
+// --------------------------------------------
+// MARK: PARTICLES
 
+        vector<Particle> personalParticles;
+        vector<Particle> neighborhoodParticles;
+        vector<Particle> cityParticles;
+    
+        ParticlesPath* personalPath;
+        ParticlesPath* neighborhoodPath;
+        ParticlesPath* cityPath;
+    
+        void initParticles();
+        void initPaths();
+        void addParticles(vector<Particle>&, int, int, ParticlesPath&);    
+        void runParticles(vector<Particle>&, ParticlesPath&);
+    
+        bool isMousePressed;
+    
 // --------------------------------------------
 // MARK: GRAPHICS
+
         ofFbo fbo;
     
         void drawPanels(ofFbo fbo);
