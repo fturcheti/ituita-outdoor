@@ -28,18 +28,19 @@ void testApp::setup(){
     iMaxNumBlobs    = 10;
     iLeftKinectId   = 0;
     iRightKinectId  = 1;
-    
 
     iFboAlpha   = 60;
-    fPathRadius = 20.0;
+    fPathRadius = (FBO_W / 6.0) / 6.0;
+    bHighlightApproximation = true;
 
-    bResetData            = true;
+
+    bResetData            = false;
     iMaxRandomParticles   = 100;
     iDeltaRandomParticles = 60;
 
-    fProx = 50.0;
-    fMinParticleSize = 4.0;
-    fMaxParticleSize = 20.0;
+    fProxFactor = 10.0;
+    fMinParticleSize = 2.0;
+    fMaxParticleSize = 8.0;
     
     // --------------------------------------------
     // MARK: INTERFACE SETUP
@@ -72,13 +73,14 @@ void testApp::setup(){
     
     gui.addPage("Particles");
     gui.addSlider("FBO Alpha (real-time)", iFboAlpha, 0, 255);
+    gui.addButton("Highlight particles", bHighlightApproximation);    
     gui.addSlider("Path Radius", fPathRadius, 2.0f, 60.0f);
     gui.addSlider("Random Max", iMaxRandomParticles, 50, 500);
     gui.addSlider("Random Delta", iDeltaRandomParticles, 0, 100);
-    gui.addSlider("Min Particle Size", fMinParticleSize, 1.0f, 10.0f);
-    gui.addSlider("Max Particle Size", fMaxParticleSize, 1.0f, 100.0f);
+    gui.addSlider("Min Particle Size", fMinParticleSize, 1.0f, 4.0f);
+    gui.addSlider("Max Particle Size", fMaxParticleSize, 1.0f, 20.0f);
     gui.addButton("Reset particles", bResetData);
-    gui.addSlider("Prox (real-time)", fProx, 0.0f, 100.0f);
+    gui.addSlider("Prox (real-time)", fProxFactor, 1.0f, 20.0f);
     
     gui.addPage("Kinect IDs");
     gui.addSlider("Left Kinect ID", iLeftKinectId, 0, 1);
@@ -105,6 +107,13 @@ void testApp::setup(){
     // MARK: FBO SETUP
     
     fbo.allocate(FBO_W, FBO_H);
+    
+    
+    GREEN     = ofColor(0, 182, 83);
+    YELLOW    = ofColor(250, 235, 52);
+    RED       = ofColor(237, 40, 73);
+    GRAY      = ofColor(102, 102, 102);
+    HIGHLIGHT = ofColor(255, 255, 255);   
     
     
     // --------------------------------------------
@@ -211,7 +220,7 @@ void testApp::initPaths() {
 }
 
 //--------------------------------------------------------------
-void testApp::addParticles(vector<Particle> &particles, int number, int color, ParticlesPath &path) {
+void testApp::addParticles(vector<Particle> &particles, int number, ofColor color, ParticlesPath &path) {
     
     for(int i = 0; i < number; i++) {
         Particle p(path, FBO_W/5.0, FBO_H, color);
@@ -223,12 +232,53 @@ void testApp::addParticles(vector<Particle> &particles, int number, int color, P
 //--------------------------------------------------------------
 void testApp::runParticles(vector<Particle> &particles, ParticlesPath &path) {
     for(int i = 0; i < particles.size(); i++) {
+        Particle* p = &particles[i];
+
+        // apply force to the particle
         if(isMousePressed) { 
-            particles[i].seek(ofVec2f(mouseX, mouseY));
+            p->seek(ofVec2f(mouseX, mouseY));
         } else {
-            particles[i].follow(path);
+            p->follow(path);
         }
-        particles[i].run();
+        
+        // KINECT INTERACTOR APPROXIMATION
+        // check if kinect's pointcloud is filled
+        if(kinect.pointCloud.size() > 0) {
+            // calculating the relative position of the particle in the point cloud
+            int relativeX = ofMap(p->location.x, 0, FBO_W, 0, kinect.getOutputWidth());            
+            int relativeY = ofMap(p->location.y, 0, FBO_H, 0, kinect.getOutputHeight());
+            int relativeKinectIndex = relativeX + (kinect.getOutputWidth() * relativeY);
+            
+            // check if the relative index is actually contained in the pointcloud
+            if(relativeKinectIndex < kinect.pointCloud.size()) {
+                // get relative kinect point
+                ofPoint kinectPoint = kinect.pointCloud[relativeKinectIndex];
+                // prevent invalid depth input
+                float z = (kinectPoint.z < 0.001) ? 0.0 : 1.0-kinectPoint.z;
+
+                // calculate destination size
+                float prox = (1 - 4 * (z/2 - 0.5) * (z/2 - 0.5));
+                float sz = ofClamp(prox * fProxFactor, fMinParticleSize, fMaxParticleSize);
+                
+                // set the particle radius
+                float r = p->r;
+                // property = (target - property) / speed
+                r += (sz - r) / 4.0;
+                p->r = r;
+                
+                // calculate highlight color relative to approximation
+                if(bHighlightApproximation) {
+                    ofColor auxColor = p->originalColor; 
+                    p->highlightColor = auxColor.lerp( HIGHLIGHT, sz/fMaxParticleSize * 0.8 );
+                } else {
+                    p->highlightColor = p->originalColor;                
+                }
+                
+            }
+        }        
+        
+        // update particle location based on actuating forces and render it
+        p->run();
     }    
 }
 
@@ -314,49 +364,6 @@ void testApp::draw(){
     ofRect(0, 0, FBO_W, FBO_H);
 
     
-//        for(int i = 0; i < b2dParticles.size(); i++) {
-//            CustomParticle p = b2dParticles[i];
-//            Data * customData = (Data*)p.getData();        
-//            
-//            
-//            if(kinect.pointCloud.size() > 0) {
-//                int relativeX = ofMap(p.getPosition().x, 0, FBO_W, kinect.getOutputWidth(), 0);            
-//                int relativeY = ofMap(p.getPosition().y, 0, FBO_H, 0, kinect.getOutputHeight());
-//                
-//                int relativeKinectIndex = relativeX + (kinect.getOutputWidth() * relativeY);
-//                
-//                if(relativeKinectIndex < kinect.pointCloud.size()) {
-//                    ofPoint kinectPoint = kinect.pointCloud[relativeKinectIndex];
-//                    float z = (kinectPoint.z < 0.001) ? 1 : kinectPoint.z;
-//                    float prox = 1.2 - z;
-//                    
-//                    float sz = 0;
-//                    switch(customData->scope) {
-//                        case PERSONAL:
-//                            sz += personalMinParticleSize;
-//                            break;
-//                        case NEIGHBORHOOD:
-//                            sz += neighborhoodMinParticleSize;
-//                            break;
-//                        case CITY:
-//                            sz += cityMinParticleSize;
-//                            break;
-//                    }                
-//                    sz += prox * fProx;
-//
-//                    float r = p.getRadius();
-//                    
-//                    // property = (target - property) / speed
-//                    r += (sz - r) / 4.0f;
-//                    
-//                    p.setRadius(r);
-//                }
-//            }    
-//
-//            p.draw();
-//        }
-    
-
     runParticles(personalParticles, *personalPath);
     runParticles(neighborhoodParticles, *neighborhoodPath);
     runParticles(cityParticles, *cityPath);

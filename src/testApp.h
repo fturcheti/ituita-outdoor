@@ -11,15 +11,12 @@
 #include "ParticlesPath.h"
 
 
-#define OUTPUT_SCREEN_W 576
-#define OUTPUT_SCREEN_H 288
-#define FBO_W 960
-#define FBO_H 288
-
-#define GREEN  0x00B653
-#define YELLOW 0xFAEB34
-#define RED    0xED2849
-#define GRAY   0x666666
+//#define OUTPUT_SCREEN_W 576
+//#define OUTPUT_SCREEN_H 288
+#define OUTPUT_SCREEN_W 1152
+#define OUTPUT_SCREEN_H 576
+#define FBO_W (OUTPUT_SCREEN_W / 3) * 5
+#define FBO_H OUTPUT_SCREEN_H
 
 
 // ---------------------------------------------
@@ -88,13 +85,13 @@ class testApp : public ofBaseApp{
         int   iMinBlobSize, iMaxBlobSize, iMaxNumBlobs;
         
         int   iFboAlpha;
-    
         int   fPathRadius;
+        bool  bHighlightApproximation;
 
         int   iMaxRandomParticles, iDeltaRandomParticles;
         bool  bResetData;
         
-        float fProx;
+        float fProxFactor;
         float fMinParticleSize, fMaxParticleSize;
         
 // --------------------------------------------
@@ -120,7 +117,7 @@ class testApp : public ofBaseApp{
     
         void initParticles();
         void initPaths();
-        void addParticles(vector<Particle>&, int, int, ParticlesPath&);    
+        void addParticles(vector<Particle>&, int, ofColor, ParticlesPath&);    
         void runParticles(vector<Particle>&, ParticlesPath&);
     
         bool isMousePressed;
@@ -129,8 +126,10 @@ class testApp : public ofBaseApp{
 // MARK: GRAPHICS
 
         ofFbo fbo;
+        ofColor GREEN, YELLOW, RED, GRAY, HIGHLIGHT; 
     
         void drawPanels(ofFbo fbo);
+    
     
 };
 

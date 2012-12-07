@@ -1,11 +1,13 @@
 
 #include "Particle.h"
 
-Particle::Particle(ParticlesPath &path, float widthLimit, float heightLimit, int color) {
+Particle::Particle(ParticlesPath &path, float widthLimit, float heightLimit, ofColor color) {
     this->path = &path;
     this->widthLimit = widthLimit;
     this->heightLimit = heightLimit;
-    this->color = color;
+    
+    originalColor = color;
+    highlightColor = color;
     
     location.set( initLocX(), ofRandom(0, heightLimit) );
     r = ofRandom(2, 4);
@@ -58,7 +60,7 @@ void Particle::borders() {
 void Particle::display() {
     ofPushMatrix();
     ofTranslate(location);
-    ofSetHexColor(color);
+    ofSetColor(highlightColor);
     ofFill();
     ofCircle(0, 0, r);
     ofPopMatrix();

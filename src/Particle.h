@@ -9,7 +9,7 @@ class Particle {
 
     public:
         
-        Particle(ParticlesPath&, float, float, int);
+        Particle(ParticlesPath&, float, float, ofColor);
         void run();
         void update();
         void applyForce(ofVec2f);
@@ -33,8 +33,8 @@ class Particle {
         float maxForce;
         float maxSpeed;
     
-        int color;
-        vector<int> colors;
+        ofColor originalColor;
+        ofColor highlightColor;
     
 };
 
