@@ -16,6 +16,7 @@ void testApp::setup(){
     
     ofSetLogLevel(OF_LOG_VERBOSE);
     ofSetFrameRate(60);
+    ofSetVerticalSync(true);
     ofBackground(30);
 
     // --------------------------------------------
@@ -33,14 +34,13 @@ void testApp::setup(){
     fPathRadius = (FBO_W / 6.0) / 6.0;
     bHighlightApproximation = true;
 
-
     bResetData            = false;
     iMaxRandomParticles   = 100;
     iDeltaRandomParticles = 60;
 
-    fProxFactor = 10.0;
-    fMinParticleSize = 2.0;
-    fMaxParticleSize = 8.0;
+    fProxFactor = 20.0;
+    fMinParticleSize = 1.4;
+    fMaxParticleSize = 6.0;
     
     // --------------------------------------------
     // MARK: INTERFACE SETUP
@@ -57,7 +57,7 @@ void testApp::setup(){
     
     iMode           = 0;
     
-    bLockKinTilt = true;
+    bLockKinTilt   = true;
     fKin1TiltAngle = 0;
     fKin2TiltAngle = 0;
     
@@ -125,6 +125,8 @@ void testApp::setup(){
     // --------------------------------------------
     // MARK: PARTICLES SETUP
     
+    doAttraction = false;
+    isMousePressed = false;    
     initPaths();
     initParticles();
         
@@ -181,8 +183,6 @@ void testApp::setupData() {
 //--------------------------------------------------------------
 void testApp::initParticles() {
     
-    isMousePressed = false;
-    
     personalParticles.clear();    
     neighborhoodParticles.clear();
     cityParticles.clear();
@@ -235,8 +235,13 @@ void testApp::runParticles(vector<Particle> &particles, ParticlesPath &path) {
         Particle* p = &particles[i];
 
         // apply force to the particle
+        // if mouse is pressed, seek mouse position
         if(isMousePressed) { 
             p->seek(ofVec2f(mouseX, mouseY));
+        // else, if there is an average attractor, seek it
+        } else if(doAttraction) {
+            p->seek(averageAttractor.location);
+        // else, follow the path
         } else {
             p->follow(path);
         }
@@ -306,44 +311,59 @@ void testApp::update(){
     }
 
     
-//    // --------------------------------------------
-//    // MARK: BLOBS BOXES    
-//    // destroy dead blobs/boxes
-//    for(map<int, ofxBox2dRect>::iterator it = b2dBlobs.begin(); it != b2dBlobs.end(); it++) {
-//        if( kinect.foundBlobsMap.find((*it).first) == kinect.foundBlobsMap.end() ) {
-//            ((*it).second).destroy();
-//            b2dBlobs.erase(it);
-//        }
-//    }
-//    
-//    // update and add blobs/boxes
-//    for(int i = 0; i < kinect.activeBlobsIds.size(); i++) {
-//        
-//        // search for the key on the map
-//        int theKey = kinect.activeBlobsIds[i];
-//        ofxBlob b = kinect.foundBlobsMap[theKey];
-//        map<int, ofxBox2dRect>::iterator it = b2dBlobs.find(theKey);
-//
-//        // if it's already on it, update box
-//        if( it != b2dBlobs.end() ) {
-//            // inverting blob x
-//            float x = ofMap(b.centroid.x, 1.0f, 0.0f, 0.0f, 1.0f);
-//            b2dBlobs[theKey].setPosition(x * FBO_W, b.centroid.y * FBO_H);
-//        }
-//        
-//        // else, add box to the map and the world 
-//        else {
-//            ofxBox2dRect r;
-//            r.setPhysics(fDensity, fBounce, fFriction);
-//            // inverting blob x
-//            float x = ofMap(b.centroid.x, 1.0f, 0.0f, 0.0f, 1.0f);
-//            r.setup(box2d.getWorld(), x * FBO_W, b.centroid.y * FBO_H, 
-//                    b.boundingRect.width * FBO_W, b.boundingRect.height * FBO_H);
-//            
-//            b2dBlobs[theKey] = r;
-//        }
-//    }
+    // --------------------------------------------
+    // MARK: ATTRACTORS FROM BLOBS
+    // destroy dead attractors
+    for(map<int, Attractor>::iterator it = attractors.begin(); it != attractors.end(); it++) {
+        if( kinect.foundBlobsMap.find((*it).first) == kinect.foundBlobsMap.end() ) {
+            // get attractor
+            Attractor a  = (*it).second;            
+            // and check if it's time to die
+            if ( time(0) - a.bornTime > a.lifeTime ) {
+                attractors.erase(it);
+            }
+        }
+    }
     
+    float sumx    = 0.0;
+    float sumy    = 0.0;
+    int   counter = 0;
+    
+    // update and add attractors
+    for(int i = 0; i < kinect.activeBlobsIds.size(); i++) {
+        
+        // search for the key on the map
+        int theKey = kinect.activeBlobsIds[i];
+        ofxBlob b = kinect.foundBlobsMap[theKey];
+        map<int, Attractor>::iterator it = attractors.find(theKey);
+
+        // if it's already on it, update attractor
+        if( it != attractors.end() ) {
+            // inverting blob x
+            float x = ofMap(b.centroid.x, 1.0f, 0.0f, 0.0f, 1.0f);
+            attractors[theKey].location.set(x * FBO_W, b.centroid.y * FBO_H);
+        }        
+        // else, add attractor to the map
+        else {
+            // inverting blob x
+            float x = ofMap(b.centroid.x, 1.0f, 0.0f, 0.0f, 1.0f);
+            // add attractor to the map
+            Attractor attract(ofVec2f(x * FBO_W, b.centroid.y * FBO_H));
+            attractors[theKey] = attract;
+        }
+
+        sumx += attractors[theKey].location.x;
+        sumy += attractors[theKey].location.y;
+        counter++;
+    }
+    
+    
+    if(counter > 0) {
+        doAttraction = true;
+        averageAttractor.set(ofVec2f(sumx/(float)counter, sumx/(float)counter));
+    } else {
+        doAttraction = false;
+    }
 }
 
 

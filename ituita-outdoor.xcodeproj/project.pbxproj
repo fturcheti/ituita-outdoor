@@ -24,6 +24,7 @@
 		49890708c36fa822fc58a60b78029bb3 /* ofxSimpleGuiFPSCounter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3c4855735366aec807a7cf36cd8a0f88 /* ofxSimpleGuiFPSCounter.cpp */; };
 		4dc6e23a5a3dd7519ddc9ff904b8953c /* ituitaBlobTracker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = aa99ae9926576167183360eb8232ecd1 /* ituitaBlobTracker.cpp */; };
 		5864ad82e20f15536d054ea319473de3 /* ofxOscMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = df49d76c45d5db505a234880104e4dc7 /* ofxOscMessage.cpp */; };
+		5F93C8D8167278500091BC51 /* Attractor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5F93C8D61672784F0091BC51 /* Attractor.cpp */; };
 		5FD35B391671E97D000847DD /* Particle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5FD35B351671E97D000847DD /* Particle.cpp */; };
 		5FD35B3A1671E97D000847DD /* ParticlesPath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5FD35B371671E97D000847DD /* ParticlesPath.cpp */; };
 		5a4349e9754d6fa14c0f2a3a1abc30b6 /* tinyxmlparser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = fc5da1c87211d4f6377da7199d8c5a1e /* tinyxmlparser.cpp */; };
@@ -152,6 +153,8 @@
 		516717f84c0146512c47a3ec3f268851 /* ofxCvHaarFinder.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ofxCvHaarFinder.h; path = ../../../addons/ofxOpenCv/src/ofxCvHaarFinder.h; sourceTree = SOURCE_ROOT; };
 		52fdaa162805011363e7d4ded9b1bc17 /* OscException.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = OscException.h; path = ../../../addons/ofxOsc/libs/oscpack/include/osc/OscException.h; sourceTree = SOURCE_ROOT; };
 		59626d03c690200ad4e8b3a6968441b6 /* ml.hpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ml.hpp; path = ../../../addons/ofxOpenCv/libs/opencv/include/opencv2/ml/ml.hpp; sourceTree = SOURCE_ROOT; };
+		5F93C8D61672784F0091BC51 /* Attractor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Attractor.cpp; sourceTree = "<group>"; };
+		5F93C8D7167278500091BC51 /* Attractor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Attractor.h; sourceTree = "<group>"; };
 		5FD35B351671E97D000847DD /* Particle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Particle.cpp; sourceTree = "<group>"; };
 		5FD35B361671E97D000847DD /* Particle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Particle.h; sourceTree = "<group>"; };
 		5FD35B371671E97D000847DD /* ParticlesPath.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ParticlesPath.cpp; sourceTree = "<group>"; };
@@ -746,6 +749,8 @@
 				078315ba02364f45217cbfad01073458 /* ofxBlob.h */,
 				12345c740a82b320bdec54c74ddad592 /* ofxContourFinder.cpp */,
 				eb49669491302af0607e69e7517b9c38 /* ofxContourFinder.h */,
+				5F93C8D61672784F0091BC51 /* Attractor.cpp */,
+				5F93C8D7167278500091BC51 /* Attractor.h */,
 			);
 			path = src;
 			sourceTree = SOURCE_ROOT;
@@ -1050,6 +1055,7 @@
 				5a4349e9754d6fa14c0f2a3a1abc30b6 /* tinyxmlparser.cpp in Sources */,
 				5FD35B391671E97D000847DD /* Particle.cpp in Sources */,
 				5FD35B3A1671E97D000847DD /* ParticlesPath.cpp in Sources */,
+				5F93C8D8167278500091BC51 /* Attractor.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

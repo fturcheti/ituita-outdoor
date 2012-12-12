@@ -9,19 +9,20 @@
 #include "ituitaData.h"
 #include "Particle.h"
 #include "ParticlesPath.h"
+#include "Attractor.h"
 
 
-//#define OUTPUT_SCREEN_W 576
-//#define OUTPUT_SCREEN_H 288
-#define OUTPUT_SCREEN_W 1152
-#define OUTPUT_SCREEN_H 576
+#define OUTPUT_SCREEN_W 576
+#define OUTPUT_SCREEN_H 288
+//#define OUTPUT_SCREEN_W 1152
+//#define OUTPUT_SCREEN_H 576
 #define FBO_W (OUTPUT_SCREEN_W / 3) * 5
 #define FBO_H OUTPUT_SCREEN_H
 
 
 // ---------------------------------------------
 // MARK: "USE TWO KINECTS" SWITCH (COMMENT TO USE JUST ONE)
-// #define USE_TWO_KINECTS
+#define USE_TWO_KINECTS
 
 
 // ---------------------------------------------
@@ -121,6 +122,11 @@ class testApp : public ofBaseApp{
         void runParticles(vector<Particle>&, ParticlesPath&);
     
         bool isMousePressed;
+    
+        map<int, Attractor> attractors;
+        Attractor averageAttractor;
+        bool doAttraction;
+    
     
 // --------------------------------------------
 // MARK: GRAPHICS
