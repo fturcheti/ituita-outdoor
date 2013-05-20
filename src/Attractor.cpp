@@ -12,18 +12,14 @@ Attractor::Attractor() {
     intensity = 0.0;
     
     bornTime = time(0);
-    lifeTime = 5;
-    
-    cout << lifeTime << endl;
+    lifeTime = 1.2;
 }
 
 Attractor::Attractor(ofVec2f location) {
     this->location = location;
     
     bornTime = time(0);
-    lifeTime = 5;
-    
-    cout << lifeTime << endl;
+    lifeTime = 1.2;
 }
 
 Attractor::Attractor(ofVec2f location, float intensity) {
@@ -32,10 +28,8 @@ Attractor::Attractor(ofVec2f location, float intensity) {
     
     bornTime = time(0);
     lifeTime = floor(intensity/1000.0) * 2;
-    
-    cout << lifeTime << endl;
 }
 
-void Attractor::set(ofVec2f location) {
+void Attractor::setLocation(ofVec2f location) {
     this->location = location;
 }

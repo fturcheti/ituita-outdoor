@@ -497,16 +497,16 @@ void kinectCapture::drawNormBlobs(int x, int y, int w, int h){
     
 }
 
-void kinectCapture::drawDepthFromCloud(int x, int y, int w, int h) {
+void kinectCapture::drawDepthFromCloud(int x, int y, int w, int h, int inc) {
     
     ofPushMatrix();
     ofTranslate(x,y);
     
-    cout<< "Num Pontos: "<< pointCloud.size() << endl;
-    
-    for (int i = 0; i < pointCloud.size(); i++) {
-        ofSetColor(pointCloud[i].z * (float)255);
-        ofCircle(pointCloud[i].x * (float)w, pointCloud[i].y * (float)h, 1);
+//    cout<< "Num Pontos: "<< pointCloud.size() << endl;
+
+    for (int i = 0; i < pointCloud.size(); i+=inc) {
+        ofSetColor( pointCloud[i].z * (float)255 );
+        ofCircle( pointCloud[i].x * (float)w, pointCloud[i].y * (float)h, 1);
     }
     
     ofPopMatrix();

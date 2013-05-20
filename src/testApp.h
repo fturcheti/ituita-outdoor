@@ -14,15 +14,15 @@
 
 #define OUTPUT_SCREEN_W 576
 #define OUTPUT_SCREEN_H 288
-//#define OUTPUT_SCREEN_W 1152
-//#define OUTPUT_SCREEN_H 576
-#define FBO_W (OUTPUT_SCREEN_W / 3) * 5
+//#define FBO_W (OUTPUT_SCREEN_W / 3) * 5
+//#define FBO_H OUTPUT_SCREEN_H
+#define FBO_W OUTPUT_SCREEN_W
 #define FBO_H OUTPUT_SCREEN_H
 
 
 // ---------------------------------------------
 // MARK: "USE TWO KINECTS" SWITCH (COMMENT TO USE JUST ONE)
-#define USE_TWO_KINECTS
+//#define USE_TWO_KINECTS
 
 
 // ---------------------------------------------
@@ -87,7 +87,6 @@ class testApp : public ofBaseApp{
         
         int   iFboAlpha;
         int   fPathRadius;
-        bool  bHighlightApproximation;
 
         int   iMaxRandomParticles, iDeltaRandomParticles;
         bool  bResetData;
@@ -133,6 +132,7 @@ class testApp : public ofBaseApp{
 
         ofFbo fbo;
         ofColor GREEN, YELLOW, RED, GRAY, HIGHLIGHT; 
+        float f4Green[4], f4Yellow[4], f4Red[4], f4Gray[4], f4Highlight[4]; 
     
         void drawPanels(ofFbo fbo);
     

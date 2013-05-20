@@ -34,7 +34,7 @@ class kinectCapture {
     void drawThreshImg(int x, int y, int w, int h, bool kin2 = false);
     void drawContour(int x, int y, int w, int h, bool kin2 = false);
     void drawNormBlobs(int x, int y, int w, int h);
-    void drawDepthFromCloud(int x, int y, int w, int h);
+    void drawDepthFromCloud(int x, int y, int w, int h, int inc);
     void close();
     bool isTwoKinects();
     int getOutputWidth();

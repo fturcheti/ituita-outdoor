@@ -31,16 +31,21 @@ void testApp::setup(){
     iRightKinectId  = 1;
 
     iFboAlpha   = 60;
-    fPathRadius = (FBO_W / 6.0) / 6.0;
-    bHighlightApproximation = true;
+    fPathRadius = (FBO_W / 3.0) / 2.4;
 
     bResetData            = false;
-    iMaxRandomParticles   = 100;
+    iMaxRandomParticles   = 200;
     iDeltaRandomParticles = 60;
 
     fProxFactor = 20.0;
     fMinParticleSize = 1.4;
     fMaxParticleSize = 6.0;
+    
+    f4Green[0]     = 0.0/255.0;   f4Green[1]     = 182.0/255.0; f4Green[2]     = 83.0/255.0;  f4Green[3]     = 255.0/255.0;
+    f4Yellow[0]    = 250.0/255.0; f4Yellow[1]    = 235.0/255.0; f4Yellow[2]    = 52.0/255.0;  f4Yellow[3]    = 255.0/255.0;
+    f4Red[0]       = 237.0/255.0; f4Red[1]       = 40.0/255.0;  f4Red[2]       = 73.0/255.0;  f4Red[3]       = 255.0/255.0;
+    f4Gray[0]      = 102.0/255.0; f4Gray[1]      = 102.0/255.0; f4Gray[2]      = 102.0/255.0; f4Gray[3]      = 255.0/255.0;
+    f4Highlight[0] = 255.0/255.0; f4Highlight[1] = 255.0/255.0; f4Highlight[2] = 255.0/255.0; f4Highlight[3] = 255.0/255.0;    
     
     // --------------------------------------------
     // MARK: INTERFACE SETUP
@@ -66,21 +71,27 @@ void testApp::setup(){
     gui.addSlider("Kin 1 Tilt Angle", fKin1TiltAngle, -30, 30);
     gui.addSlider("Kin 2 Tilt Angle", fKin2TiltAngle, -30, 30);
     gui.addSlider("Near Threshold", iNearThreshold, 0, 255);
-    gui.addSlider("Far Threshold", iFarThreshold, 255, 0);
+    gui.addSlider("Far Threshold", iFarThreshold, 0, 255);
     gui.addSlider("Min Blob Size", iMinBlobSize, 0, 40000);
     gui.addSlider("Max Blob Size", iMaxBlobSize, 1, 307200);
     gui.addSlider("Max Num Blobs", iMaxNumBlobs, 1, 30);
     
     gui.addPage("Particles");
-    gui.addSlider("FBO Alpha (real-time)", iFboAlpha, 0, 255);
-    gui.addButton("Highlight particles", bHighlightApproximation);    
+    gui.addSlider("FBO Alpha REALTIME", iFboAlpha, 0, 255);
     gui.addSlider("Path Radius", fPathRadius, 2.0f, 60.0f);
+    gui.addSlider("Prox REALTIME", fProxFactor, 1.0f, 20.0f);
     gui.addSlider("Random Max", iMaxRandomParticles, 50, 500);
     gui.addSlider("Random Delta", iDeltaRandomParticles, 0, 100);
     gui.addSlider("Min Particle Size", fMinParticleSize, 1.0f, 4.0f);
     gui.addSlider("Max Particle Size", fMaxParticleSize, 1.0f, 20.0f);
     gui.addButton("Reset particles", bResetData);
-    gui.addSlider("Prox (real-time)", fProxFactor, 1.0f, 20.0f);
+
+    gui.addPage("Colors");
+    gui.addColorPicker("Positivo", f4Green); 
+    gui.addColorPicker("Neutro", f4Yellow); 
+    gui.addColorPicker("Negativo", f4Red); 
+    gui.addColorPicker("Ghosts", f4Gray); 
+    gui.addColorPicker("Highlight", f4Highlight);
     
     gui.addPage("Kinect IDs");
     gui.addSlider("Left Kinect ID", iLeftKinectId, 0, 1);
@@ -89,7 +100,7 @@ void testApp::setup(){
     gui.loadFromXML();
     gui.show();
     
-    isGUIActive = true;
+    isGUIActive = false;
     
     // --------------------------------------------
     // MARK: KINECT SETUP
@@ -107,13 +118,6 @@ void testApp::setup(){
     // MARK: FBO SETUP
     
     fbo.allocate(FBO_W, FBO_H);
-    
-    
-    GREEN     = ofColor(0, 182, 83);
-    YELLOW    = ofColor(250, 235, 52);
-    RED       = ofColor(237, 40, 73);
-    GRAY      = ofColor(102, 102, 102);
-    HIGHLIGHT = ofColor(255, 255, 255);   
     
     
     // --------------------------------------------
@@ -183,6 +187,12 @@ void testApp::setupData() {
 //--------------------------------------------------------------
 void testApp::initParticles() {
     
+    GREEN     = ofColor(f4Green[0]*255,     f4Green[1]*255,     f4Green[2]*255,     f4Green[3]*255);
+    YELLOW    = ofColor(f4Yellow[0]*255,    f4Yellow[1]*255,    f4Yellow[2]*255,    f4Yellow[3]*255);
+    RED       = ofColor(f4Red[0]*255,       f4Red[1]*255,       f4Red[2]*255,       f4Red[3]*255);
+    GRAY      = ofColor(f4Gray[0]*255,      f4Gray[1]*255,      f4Gray[2]*255,      f4Gray[3]*255);
+    HIGHLIGHT = ofColor(f4Highlight[0]*255, f4Highlight[1]*255, f4Highlight[2]*255, f4Highlight[3]*255);     
+    
     personalParticles.clear();    
     neighborhoodParticles.clear();
     cityParticles.clear();
@@ -207,15 +217,24 @@ void testApp::initParticles() {
 //--------------------------------------------------------------
 void testApp::initPaths() {
     
+//    personalPath     = new ParticlesPath( fPathRadius, 
+//                                         ofVec2f(FBO_W/10.0, FBO_W), 
+//                                         ofVec2f(FBO_W/10.0, 0) );
+//    neighborhoodPath = new ParticlesPath( fPathRadius, 
+//                                         ofVec2f(FBO_W/10.0 * 5, FBO_H), 
+//                                         ofVec2f(FBO_W/10.0 * 5, 0) );
+//    cityPath         = new ParticlesPath( fPathRadius, 
+//                                         ofVec2f(FBO_W/10.0 * 9, FBO_H), 
+//                                         ofVec2f(FBO_W/10.0 * 9, 0) );
     personalPath     = new ParticlesPath( fPathRadius, 
-                                         ofVec2f(FBO_W/10.0, FBO_W), 
-                                         ofVec2f(FBO_W/10.0, 0) );
+                                         ofVec2f(FBO_W/6.0, FBO_W), 
+                                         ofVec2f(FBO_W/6.0, 0) );
     neighborhoodPath = new ParticlesPath( fPathRadius, 
-                                         ofVec2f(FBO_W/10.0 * 5, FBO_H), 
-                                         ofVec2f(FBO_W/10.0 * 5, 0) );
+                                         ofVec2f(FBO_W/6.0 * 3, FBO_H), 
+                                         ofVec2f(FBO_W/6.0 * 3, 0) );
     cityPath         = new ParticlesPath( fPathRadius, 
-                                         ofVec2f(FBO_W/10.0 * 9, FBO_H), 
-                                         ofVec2f(FBO_W/10.0 * 9, 0) );
+                                         ofVec2f(FBO_W/6.0 * 5, FBO_H), 
+                                         ofVec2f(FBO_W/6.0 * 5, 0) );
     
 }
 
@@ -234,15 +253,29 @@ void testApp::runParticles(vector<Particle> &particles, ParticlesPath &path) {
     for(int i = 0; i < particles.size(); i++) {
         Particle* p = &particles[i];
 
+// IGNORE ATTRACTION
+//doAttraction = false;
+        
         // apply force to the particle
         // if mouse is pressed, seek mouse position
         if(isMousePressed) { 
-            p->seek(ofVec2f(mouseX, mouseY));
+            float attractX = mouseX;
+            float limit = FBO_W/6.0;
+            if(attractX > path.start.x - limit && attractX < path.start.x + limit) {
+                p->maxSpeed = 2;
+                p->seek(ofVec2f(mouseX, mouseY));
+            }
         // else, if there is an average attractor, seek it
         } else if(doAttraction) {
-            p->seek(averageAttractor.location);
+            float attractX = averageAttractor.location.x;
+            float limit = FBO_W/6.0;
+            if(attractX > path.start.x - limit && attractX < path.start.x + limit) {
+                p->maxSpeed = 2;
+                p->seek(averageAttractor.location);
+            }
         // else, follow the path
         } else {
+            p->maxSpeed = p->originalMaxSpeed;
             p->follow(path);
         }
         
@@ -272,12 +305,8 @@ void testApp::runParticles(vector<Particle> &particles, ParticlesPath &path) {
                 p->r = r;
                 
                 // calculate highlight color relative to approximation
-                if(bHighlightApproximation) {
-                    ofColor auxColor = p->originalColor; 
-                    p->highlightColor = auxColor.lerp( HIGHLIGHT, sz/fMaxParticleSize * 0.8 );
-                } else {
-                    p->highlightColor = p->originalColor;                
-                }
+                ofColor auxColor = p->originalColor; 
+                p->highlightColor = auxColor.lerp( HIGHLIGHT, sz/fMaxParticleSize * 0.8 );
                 
             }
         }        
@@ -313,22 +342,28 @@ void testApp::update(){
     
     // --------------------------------------------
     // MARK: ATTRACTORS FROM BLOBS
-    // destroy dead attractors
-    for(map<int, Attractor>::iterator it = attractors.begin(); it != attractors.end(); it++) {
-        if( kinect.foundBlobsMap.find((*it).first) == kinect.foundBlobsMap.end() ) {
-            // get attractor
-            Attractor a  = (*it).second;            
-            // and check if it's time to die
-            if ( time(0) - a.bornTime > a.lifeTime ) {
-                attractors.erase(it);
-            }
-        }
-    }
-    
+
+    // variables to calculate the average attractor
     float sumx    = 0.0;
     float sumy    = 0.0;
     int   counter = 0;
     
+    // destroy dead attractors    
+    for(map<int, Attractor>::iterator it = attractors.begin(); it != attractors.end(); it++) {
+        if( kinect.foundBlobsMap.find((*it).first) == kinect.foundBlobsMap.end() ) {
+            // get attractor
+            Attractor a  = (*it).second;            
+            // and check if it's time to die            
+            if ( time(0) - a.bornTime > a.lifeTime ) {
+                attractors.erase(it);
+            } else {
+                sumx += a.location.x;
+                sumy += a.location.y;
+                counter++;
+            }
+        }
+    }
+        
     // update and add attractors
     for(int i = 0; i < kinect.activeBlobsIds.size(); i++) {
         
@@ -360,7 +395,7 @@ void testApp::update(){
     
     if(counter > 0) {
         doAttraction = true;
-        averageAttractor.set(ofVec2f(sumx/(float)counter, sumx/(float)counter));
+        averageAttractor.setLocation(ofVec2f(sumx/(float)counter, sumy/(float)counter));
     } else {
         doAttraction = false;
     }
@@ -379,10 +414,8 @@ void testApp::draw(){
     glEnable(GL_BLEND);  
     glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);  
     
-    //ofClear(0, 0, 0, 40);
     ofSetColor(0, iFboAlpha);
     ofRect(0, 0, FBO_W, FBO_H);
-
     
     runParticles(personalParticles, *personalPath);
     runParticles(neighborhoodParticles, *neighborhoodPath);
@@ -395,12 +428,15 @@ void testApp::draw(){
     
     ofEnableAlphaBlending();
 //    ofSetColor(255);
-//    fbo.draw(0, 0);
-    drawPanels(fbo);
+    fbo.draw(0, 0);
+//    drawPanels(fbo);
     ofDisableAlphaBlending();
     
     if(isGUIActive) {
+        ofShowCursor();
         drawGUI();
+    } else {
+        //ofHideCursor();
     }
     
 }
@@ -552,7 +588,7 @@ void testApp::drawGUI() {
     }
     
     else if(iMode == 2) {
-        kinect.drawDepthFromCloud(iLeftMargin, iTopMargin, 960, 480);
+        kinect.drawDepthFromCloud(iLeftMargin, iTopMargin, 960, 480, 2);
         ofSetColor(255, 255, 255);
         ofDrawBitmapString("Depth map drawn from normalized point cloud", iLeftMargin, iTopMargin + 500);
     }

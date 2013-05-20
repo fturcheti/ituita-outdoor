@@ -11,16 +11,17 @@ Particle::Particle(ParticlesPath &path, float widthLimit, float heightLimit, ofC
     
     location.set( initLocX(), ofRandom(0, heightLimit) );
     r = ofRandom(2, 4);
-    maxForce = ofRandom(0.05, 0.2);
-    maxSpeed = ofRandom(2, 5);
+    maxForce = ofRandom(0.2, 0.5); //ofRandom(0.05, 0.2);
+    originalMaxSpeed = ofRandom(0.8, 2.0);  //ofRandom(1, 3);
+    maxSpeed = originalMaxSpeed;
     acceleration.set(0, 0);
-    velocity.set(1, 0);    
+    velocity.set(0.8, -0.8);    
 }
 
 // set a random location.x on particle height reset
 float Particle::initLocX() {
     int dir = (ofRandom(0, 1) > 0.5) ? 1 : -1;
-    return path->start.x + dir*ofRandom(2, 10) * (widthLimit/20);
+    return path->start.x + ( dir*ofRandom(2, 10) * (widthLimit/10.0) );
 }
 
 void Particle::run() {
@@ -70,7 +71,7 @@ void Particle::display() {
 void Particle::follow(ParticlesPath path) {
     // velocity.y shouldn't be positive or so slow,
     // but seeking a target outside the path can make it so
-    if(velocity.y > -0.1) velocity.y = -0.1;
+    if(velocity.y > -0.1) velocity.y = -2.0;
     
     // predict location "n" frames ahead
     int n = 20;

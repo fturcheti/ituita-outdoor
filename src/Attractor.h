@@ -14,7 +14,7 @@ class Attractor {
         Attractor(ofVec2f);
         Attractor(ofVec2f, float);
     
-        void set(ofVec2f);
+        void setLocation(ofVec2f);
         
         ofVec2f location;
         float intensity;

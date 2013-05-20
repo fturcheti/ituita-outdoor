@@ -32,6 +32,7 @@ class Particle {
         float r;
         float maxForce;
         float maxSpeed;
+        float originalMaxSpeed;
     
         ofColor originalColor;
         ofColor highlightColor;
