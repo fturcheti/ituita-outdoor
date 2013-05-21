@@ -93,7 +93,10 @@ class testApp : public ofBaseApp{
         
         float fProxFactor;
         float fMinParticleSize, fMaxParticleSize;
-        
+    
+        float fAttractionVelocity;
+        float fAttractorLife;
+    
 // --------------------------------------------
 // MARK: DATA
 

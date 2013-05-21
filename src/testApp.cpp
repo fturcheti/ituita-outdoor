@@ -41,6 +41,9 @@ void testApp::setup(){
     fMinParticleSize = 1.4;
     fMaxParticleSize = 6.0;
     
+    fAttractionVelocity = 2.0;
+    fAttractorLife     = 0.5;
+    
     f4Green[0]     = 0.0/255.0;   f4Green[1]     = 182.0/255.0; f4Green[2]     = 83.0/255.0;  f4Green[3]     = 255.0/255.0;
     f4Yellow[0]    = 250.0/255.0; f4Yellow[1]    = 235.0/255.0; f4Yellow[2]    = 52.0/255.0;  f4Yellow[3]    = 255.0/255.0;
     f4Red[0]       = 237.0/255.0; f4Red[1]       = 40.0/255.0;  f4Red[2]       = 73.0/255.0;  f4Red[3]       = 255.0/255.0;
@@ -80,6 +83,8 @@ void testApp::setup(){
     gui.addSlider("FBO Alpha REALTIME", iFboAlpha, 0, 255);
     gui.addSlider("Path Radius", fPathRadius, 2.0f, 60.0f);
     gui.addSlider("Prox REALTIME", fProxFactor, 1.0f, 20.0f);
+    gui.addSlider("Attractor Vel REALTIME", fAttractionVelocity, 0.1f, 2.0f);
+    gui.addSlider("Attractor Life REALTIME", fAttractorLife, 0.1f, 2.0f);
     gui.addSlider("Random Max", iMaxRandomParticles, 50, 500);
     gui.addSlider("Random Delta", iDeltaRandomParticles, 0, 100);
     gui.addSlider("Min Particle Size", fMinParticleSize, 1.0f, 4.0f);
@@ -279,7 +284,7 @@ void testApp::runParticles(vector<Particle> &particles, ParticlesPath &path) {
         
         // if there is an average attractor in this particle's panel, follow it
         if(doAttraction) {
-            p->maxSpeed = 2;
+            p->maxSpeed = fAttractionVelocity;
             p->seek(attractor->location);
         // else, follow the path
         } else {
@@ -409,7 +414,7 @@ void testApp::update(){
             // inverting blob x
             float x = ofMap(b.centroid.x, 1.0f, 0.0f, 0.0f, 1.0f);
             // add attractor to the map
-            Attractor attract(ofVec2f(x * FBO_W, b.centroid.y * FBO_H));
+            Attractor attract(ofVec2f(x * FBO_W, b.centroid.y * FBO_H), fAttractorLife);
             attractors[theKey] = attract;
         }
 
