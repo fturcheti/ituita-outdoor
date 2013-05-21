@@ -17,7 +17,7 @@ kinectCapture::kinectCapture() {
     //SETUP NORMALIZATION TABLES
     
     for (int i = 0 ; i < 640 ; i++) {
-        norm640[i] = ofNormalize(i, 640, 640);
+        norm640[i] = ofNormalize(i, 0, 640);
     }
     
     for (int i = 0; i < 480; i++) {
@@ -25,7 +25,7 @@ kinectCapture::kinectCapture() {
     }
     
     for (int i = 0; i < 960; i++) {
-        norm960[i] = ofNormalize(i, 960, 960);
+        norm960[i] = ofNormalize(i, 0, 960);
     }
     
     for (int i = 0; i < 4000; i++) {
@@ -367,7 +367,7 @@ void kinectCapture::update() {
             
             for (int y = 0; y < KIN_H; y++) {
                 for (int x = KIN_W; x > 0; x--) {
-                    pointCloud.push_back(ofPoint(normWidth(x), normHeight(y), normDepth((int)kinect1.getDistanceAt(x,y))));
+                    pointCloud.push_back(ofPoint(normWidth(x, false), normHeight(y), normDepth((int)kinect1.getDistanceAt(x,y))));
                 }
             }
             
@@ -502,11 +502,13 @@ void kinectCapture::drawDepthFromCloud(int x, int y, int w, int h, int inc) {
     ofPushMatrix();
     ofTranslate(x,y);
     
-//    cout<< "Num Pontos: "<< pointCloud.size() << endl;
-
     for (int i = 0; i < pointCloud.size(); i+=inc) {
         ofSetColor( pointCloud[i].z * (float)255 );
-        ofCircle( pointCloud[i].x * (float)w, pointCloud[i].y * (float)h, 1);
+        ofFill();
+        ofCircle( pointCloud[i].x * (float)w, pointCloud[i].y * (float)h, inc/2);
+
+        // add the increment to the height
+        if(i % getOutputWidth() == getOutputWidth()-inc) i += inc * getOutputWidth();
     }
     
     ofPopMatrix();

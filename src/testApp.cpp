@@ -588,7 +588,10 @@ void testApp::drawGUI() {
     }
     
     else if(iMode == 2) {
-        kinect.drawDepthFromCloud(iLeftMargin, iTopMargin, 960, 480, 2);
+        // the increment to minimize the drawing loop iterations
+        int inc = 4;
+        
+        kinect.drawDepthFromCloud(iLeftMargin, iTopMargin, kinect.getOutputWidth(), kinect.getOutputHeight(), inc);
         ofSetColor(255, 255, 255);
         ofDrawBitmapString("Depth map drawn from normalized point cloud", iLeftMargin, iTopMargin + 500);
     }
