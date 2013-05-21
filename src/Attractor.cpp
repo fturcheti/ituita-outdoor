@@ -12,14 +12,14 @@ Attractor::Attractor() {
     intensity = 0.0;
     
     bornTime = time(0);
-    lifeTime = 1.2;
+    lifeTime = 0.5;
 }
 
 Attractor::Attractor(ofVec2f location) {
     this->location = location;
     
     bornTime = time(0);
-    lifeTime = 1.2;
+    lifeTime = 0.5;
 }
 
 Attractor::Attractor(ofVec2f location, float intensity) {

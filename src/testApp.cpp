@@ -129,8 +129,11 @@ void testApp::setup(){
     // --------------------------------------------
     // MARK: PARTICLES SETUP
     
-    doAttraction = false;
-    isMousePressed = false;    
+    doPersonalPanelAttraction     = false;
+    doNeighborhoodPanelAttraction = false;
+    doCityPanelAttraction         = false;
+    isMousePressed                = false;
+    
     initPaths();
     initParticles();
         
@@ -253,31 +256,37 @@ void testApp::runParticles(vector<Particle> &particles, ParticlesPath &path) {
     for(int i = 0; i < particles.size(); i++) {
         Particle* p = &particles[i];
 
-// IGNORE ATTRACTION
-//doAttraction = false;
         
-        // apply force to the particle
-        // if mouse is pressed, seek mouse position
-        if(isMousePressed) { 
-            float attractX = mouseX;
-            float limit = FBO_W/6.0;
-            if(attractX > path.start.x - limit && attractX < path.start.x + limit) {
-                p->maxSpeed = 2;
-                p->seek(ofVec2f(mouseX, mouseY));
-            }
-        // else, if there is an average attractor, seek it
-        } else if(doAttraction) {
-            float attractX = averageAttractor.location.x;
-            float limit = FBO_W/6.0;
-            if(attractX > path.start.x - limit && attractX < path.start.x + limit) {
-                p->maxSpeed = 2;
-                p->seek(averageAttractor.location);
-            }
+        // KINECT INTERACTOR ATTRACTORS
+        // defining the particle path
+        bool doAttraction = false;
+        Attractor * attractor;
+        
+        // verify the panel which the particle belongs
+        // and if there is an average attractor on it
+        if(&path == personalPath && doPersonalPanelAttraction) {
+            doAttraction = true;
+            attractor = &attractorPersonalPanel;
+        }
+        else if(&path == neighborhoodPath && doNeighborhoodPanelAttraction) {
+            doAttraction = true;
+            attractor = &attractorNeighborhoodPanel;
+        }
+        else if(&path == cityPath && doCityPanelAttraction) {
+            doAttraction = true;
+            attractor = &attractorCityPanel;
+        }
+        
+        // if there is an average attractor in this particle's panel, follow it
+        if(doAttraction) {
+            p->maxSpeed = 2;
+            p->seek(attractor->location);
         // else, follow the path
         } else {
             p->maxSpeed = p->originalMaxSpeed;
             p->follow(path);
         }
+        
         
         // KINECT INTERACTOR APPROXIMATION
         // check if kinect's pointcloud is filled
@@ -344,9 +353,11 @@ void testApp::update(){
     // MARK: ATTRACTORS FROM BLOBS
 
     // variables to calculate the average attractor
-    float sumx    = 0.0;
-    float sumy    = 0.0;
-    int   counter = 0;
+    float sumx[3]    = {0.0, 0.0, 0.0};
+    float sumy[3]    = {0.0, 0.0, 0.0};
+    int   counter[3] = {0, 0, 0};
+    
+    
     
     // destroy dead attractors    
     for(map<int, Attractor>::iterator it = attractors.begin(); it != attractors.end(); it++) {
@@ -357,9 +368,24 @@ void testApp::update(){
             if ( time(0) - a.bornTime > a.lifeTime ) {
                 attractors.erase(it);
             } else {
-                sumx += a.location.x;
-                sumy += a.location.y;
-                counter++;
+                // if attractor is located in the first panel - the street panel
+                if(a.location.x < FBO_W / 3) {
+                    sumx[0] += a.location.x;
+                    sumy[0] += a.location.y;
+                    counter[0]++;
+                }
+                // or if attractor is located in the second panel - the neighborhood panel
+                else if(a.location.x < FBO_W / 3 * 2) {
+                    sumx[1] += a.location.x;
+                    sumy[1] += a.location.y;
+                    counter[1]++;
+                }
+                // or if attractor is located in the third panel - the city panel
+                else {
+                    sumx[2] += a.location.x;
+                    sumy[2] += a.location.y;
+                    counter[2]++;
+                }
             }
         }
     }
@@ -387,18 +413,56 @@ void testApp::update(){
             attractors[theKey] = attract;
         }
 
-        sumx += attractors[theKey].location.x;
-        sumy += attractors[theKey].location.y;
-        counter++;
+        
+        // if attractor is located in the first panel - the personal panel
+        if(attractors[theKey].location.x < FBO_W / 3) {
+            sumx[0] += attractors[theKey].location.x;
+            sumy[0] += attractors[theKey].location.y;
+            counter[0]++;
+        }
+        // or if attractor is located in the second panel - the neighborhood panel
+        else if(attractors[theKey].location.x < FBO_W / 3 * 2) {
+            sumx[1] += attractors[theKey].location.x;
+            sumy[1] += attractors[theKey].location.y;
+            counter[1]++;
+        }
+        // or if attractor is located in the third panel - the city panel
+        else {
+            sumx[2] += attractors[theKey].location.x;
+            sumy[2] += attractors[theKey].location.y;
+            counter[2]++;
+        }
+
     }
     
     
-    if(counter > 0) {
-        doAttraction = true;
-        averageAttractor.setLocation(ofVec2f(sumx/(float)counter, sumy/(float)counter));
+    // if there are attractors in the first panel - the personal panel,
+    // set the panel average attractor
+    if(counter[0] > 0) {
+        doPersonalPanelAttraction = true;
+        attractorPersonalPanel.setLocation(ofVec2f(sumx[0]/(float)counter[0], sumy[0]/(float)counter[0]));
     } else {
-        doAttraction = false;
+        doPersonalPanelAttraction = false;
     }
+
+    // if there are attractors in the second panel - the neighborhood panel,
+    // set the panel average attractor
+    if(counter[1] > 0) {
+        doNeighborhoodPanelAttraction = true;
+        attractorNeighborhoodPanel.setLocation(ofVec2f(sumx[1]/(float)counter[1], sumy[1]/(float)counter[1]));
+    } else {
+        doNeighborhoodPanelAttraction = false;
+    }
+    
+    // if there are attractors in the third panel - the city panel,
+    // set the panel average attractor
+    if(counter[2] > 0) {
+        doCityPanelAttraction = true;
+        attractorCityPanel.setLocation(ofVec2f(sumx[2]/(float)counter[2], sumy[2]/(float)counter[2]));
+    } else {
+        doCityPanelAttraction = false;
+    }
+    
 }
 
 

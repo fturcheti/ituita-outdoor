@@ -123,8 +123,14 @@ class testApp : public ofBaseApp{
         bool isMousePressed;
     
         map<int, Attractor> attractors;
-        Attractor averageAttractor;
-        bool doAttraction;
+    
+        Attractor attractorPersonalPanel;
+        Attractor attractorNeighborhoodPanel;
+        Attractor attractorCityPanel;
+    
+        bool doPersonalPanelAttraction;
+        bool doNeighborhoodPanelAttraction;
+        bool doCityPanelAttraction;
     
     
 // --------------------------------------------
