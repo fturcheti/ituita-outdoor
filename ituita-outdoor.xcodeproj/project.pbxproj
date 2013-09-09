@@ -25,6 +25,7 @@
 		4dc6e23a5a3dd7519ddc9ff904b8953c /* ituitaBlobTracker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = aa99ae9926576167183360eb8232ecd1 /* ituitaBlobTracker.cpp */; };
 		5864ad82e20f15536d054ea319473de3 /* ofxOscMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = df49d76c45d5db505a234880104e4dc7 /* ofxOscMessage.cpp */; };
 		5F93C8D8167278500091BC51 /* Attractor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5F93C8D61672784F0091BC51 /* Attractor.cpp */; };
+		5FC557AC17CC047E00BC9FBC /* XMLThread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5FC557AA17CC047E00BC9FBC /* XMLThread.cpp */; };
 		5FD35B391671E97D000847DD /* Particle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5FD35B351671E97D000847DD /* Particle.cpp */; };
 		5FD35B3A1671E97D000847DD /* ParticlesPath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5FD35B371671E97D000847DD /* ParticlesPath.cpp */; };
 		5a4349e9754d6fa14c0f2a3a1abc30b6 /* tinyxmlparser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = fc5da1c87211d4f6377da7199d8c5a1e /* tinyxmlparser.cpp */; };
@@ -155,6 +156,8 @@
 		59626d03c690200ad4e8b3a6968441b6 /* ml.hpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ml.hpp; path = ../../../addons/ofxOpenCv/libs/opencv/include/opencv2/ml/ml.hpp; sourceTree = SOURCE_ROOT; };
 		5F93C8D61672784F0091BC51 /* Attractor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Attractor.cpp; sourceTree = "<group>"; };
 		5F93C8D7167278500091BC51 /* Attractor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Attractor.h; sourceTree = "<group>"; };
+		5FC557AA17CC047E00BC9FBC /* XMLThread.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = XMLThread.cpp; sourceTree = "<group>"; };
+		5FC557AB17CC047E00BC9FBC /* XMLThread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XMLThread.h; sourceTree = "<group>"; };
 		5FD35B351671E97D000847DD /* Particle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Particle.cpp; sourceTree = "<group>"; };
 		5FD35B361671E97D000847DD /* Particle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Particle.h; sourceTree = "<group>"; };
 		5FD35B371671E97D000847DD /* ParticlesPath.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ParticlesPath.cpp; sourceTree = "<group>"; };
@@ -733,24 +736,26 @@
 		E4B69E1C0A3A1BDC003C02F2 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				E4B69E1D0A3A1BDC003C02F2 /* main.cpp */,
+				E4B69E1E0A3A1BDC003C02F2 /* testApp.cpp */,
+				E4B69E1F0A3A1BDC003C02F2 /* testApp.h */,
 				5FD35B351671E97D000847DD /* Particle.cpp */,
 				5FD35B361671E97D000847DD /* Particle.h */,
 				5FD35B371671E97D000847DD /* ParticlesPath.cpp */,
 				5FD35B381671E97D000847DD /* ParticlesPath.h */,
-				E4B69E1D0A3A1BDC003C02F2 /* main.cpp */,
-				E4B69E1E0A3A1BDC003C02F2 /* testApp.cpp */,
-				E4B69E1F0A3A1BDC003C02F2 /* testApp.h */,
+				5F93C8D61672784F0091BC51 /* Attractor.cpp */,
+				5F93C8D7167278500091BC51 /* Attractor.h */,
 				aa99ae9926576167183360eb8232ecd1 /* ituitaBlobTracker.cpp */,
 				02a81700dd0946738cf9e08be4a826b5 /* ituitaBlobTracker.h */,
-				d50567825546f0a64da27d01c6587c8c /* ituitaData.cpp */,
-				2ba8002bad5e501ff7db52f6b8953b00 /* ituitaData.h */,
 				48e2dba5644571bf7d5112f37a87430c /* kinectCapture.cpp */,
 				07e2d87873375e6ed3a3113d01d07e34 /* kinectCapture.h */,
 				078315ba02364f45217cbfad01073458 /* ofxBlob.h */,
 				12345c740a82b320bdec54c74ddad592 /* ofxContourFinder.cpp */,
 				eb49669491302af0607e69e7517b9c38 /* ofxContourFinder.h */,
-				5F93C8D61672784F0091BC51 /* Attractor.cpp */,
-				5F93C8D7167278500091BC51 /* Attractor.h */,
+				d50567825546f0a64da27d01c6587c8c /* ituitaData.cpp */,
+				2ba8002bad5e501ff7db52f6b8953b00 /* ituitaData.h */,
+				5FC557AA17CC047E00BC9FBC /* XMLThread.cpp */,
+				5FC557AB17CC047E00BC9FBC /* XMLThread.h */,
 			);
 			path = src;
 			sourceTree = SOURCE_ROOT;
@@ -1056,6 +1061,7 @@
 				5FD35B391671E97D000847DD /* Particle.cpp in Sources */,
 				5FD35B3A1671E97D000847DD /* ParticlesPath.cpp in Sources */,
 				5F93C8D8167278500091BC51 /* Attractor.cpp in Sources */,
+				5FC557AC17CC047E00BC9FBC /* XMLThread.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

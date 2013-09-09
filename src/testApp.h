@@ -4,6 +4,8 @@
 
 #include "ofxSimpleGuiToo.h"
 
+#include "XMLThread.h"
+
 #include "kinectCapture.h"
 #include "ituitaBlobTracker.h"
 #include "ituitaData.h"
@@ -14,15 +16,8 @@
 
 #define OUTPUT_SCREEN_W 576
 #define OUTPUT_SCREEN_H 288
-//#define FBO_W (OUTPUT_SCREEN_W / 3) * 5
-//#define FBO_H OUTPUT_SCREEN_H
 #define FBO_W OUTPUT_SCREEN_W
 #define FBO_H OUTPUT_SCREEN_H
-
-
-// ---------------------------------------------
-// MARK: "USE TWO KINECTS" SWITCH (COMMENT TO USE JUST ONE)
-//#define USE_TWO_KINECTS
 
 
 // ---------------------------------------------
@@ -81,6 +76,7 @@ class testApp : public ofBaseApp{
 // --------------------------------------------
 // MARK: CONTROL VARIABLES
 
+        bool  bTwoKinects;
         int   iLeftKinectId, iRightKinectId;
         int   iFarThreshold, iNearThreshold;
         int   iMinBlobSize, iMaxBlobSize, iMaxNumBlobs;
@@ -88,9 +84,10 @@ class testApp : public ofBaseApp{
         int   iFboAlpha;
         int   fPathRadius;
 
-        int   iMaxRandomParticles, iDeltaRandomParticles;
         bool  bResetData;
-        
+        bool  bRandomizeParticles;
+        int   iMaxRandomParticles, iDeltaRandomParticles;
+    
         float fProxFactor;
         float fMinParticleSize, fMaxParticleSize;
     
@@ -101,20 +98,18 @@ class testApp : public ofBaseApp{
 // MARK: DATA
 
         ituitaData data;
-        int personalData[3];
-        int neighborhoodData[3];
-        int cityData[3];
+        bool hasInitiated;
+        XMLThread xmlThread;
     
-        void setupData();
     
 // --------------------------------------------
 // MARK: PARTICLES
 
-        vector<Particle> personalParticles;
+        vector<Particle> streetParticles;
         vector<Particle> neighborhoodParticles;
         vector<Particle> cityParticles;
     
-        ParticlesPath* personalPath;
+        ParticlesPath* streetPath;
         ParticlesPath* neighborhoodPath;
         ParticlesPath* cityPath;
     
@@ -127,11 +122,11 @@ class testApp : public ofBaseApp{
     
         map<int, Attractor> attractors;
     
-        Attractor attractorPersonalPanel;
+        Attractor attractorStreetPanel;
         Attractor attractorNeighborhoodPanel;
         Attractor attractorCityPanel;
     
-        bool doPersonalPanelAttraction;
+        bool doStreetPanelAttraction;
         bool doNeighborhoodPanelAttraction;
         bool doCityPanelAttraction;
     
@@ -144,7 +139,7 @@ class testApp : public ofBaseApp{
         float f4Green[4], f4Yellow[4], f4Red[4], f4Gray[4], f4Highlight[4]; 
     
         void drawPanels(ofFbo fbo);
-    
+
     
 };
 

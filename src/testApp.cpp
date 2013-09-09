@@ -14,7 +14,7 @@
 //--------------------------------------------------------------
 void testApp::setup(){
     
-    ofSetLogLevel(OF_LOG_VERBOSE);
+    ofSetLogLevel(OF_LOG_NOTICE);
     ofSetFrameRate(60);
     ofSetVerticalSync(true);
     ofBackground(30);
@@ -27,6 +27,8 @@ void testApp::setup(){
     iMinBlobSize    = 1000;
     iMaxBlobSize    = 300000;
     iMaxNumBlobs    = 10;
+    
+    bTwoKinects     = 1;
     iLeftKinectId   = 0;
     iRightKinectId  = 1;
 
@@ -34,15 +36,16 @@ void testApp::setup(){
     fPathRadius = (FBO_W / 3.0) / 2.4;
 
     bResetData            = false;
+    bRandomizeParticles   = false;
     iMaxRandomParticles   = 200;
     iDeltaRandomParticles = 60;
 
-    fProxFactor = 20.0;
+    fProxFactor      = 20.0;
     fMinParticleSize = 1.4;
     fMaxParticleSize = 6.0;
     
     fAttractionVelocity = 2.0;
-    fAttractorLife     = 0.5;
+    fAttractorLife      = 0.5;
     
     f4Green[0]     = 0.0/255.0;   f4Green[1]     = 182.0/255.0; f4Green[2]     = 83.0/255.0;  f4Green[3]     = 255.0/255.0;
     f4Yellow[0]    = 250.0/255.0; f4Yellow[1]    = 235.0/255.0; f4Yellow[2]    = 52.0/255.0;  f4Yellow[3]    = 255.0/255.0;
@@ -79,28 +82,30 @@ void testApp::setup(){
     gui.addSlider("Max Blob Size", iMaxBlobSize, 1, 307200);
     gui.addSlider("Max Num Blobs", iMaxNumBlobs, 1, 30);
     
+    gui.addPage("Kinects");
+    gui.addToggle("Two Kinects", bTwoKinects);
+    gui.addSlider("Left Kinect ID", iLeftKinectId, 0, 1);
+    gui.addSlider("Right Kinect ID", iRightKinectId, 0, 1);
+    
     gui.addPage("Particles");
-    gui.addSlider("FBO Alpha REALTIME", iFboAlpha, 0, 255);
-    gui.addSlider("Path Radius", fPathRadius, 2.0f, 60.0f);
     gui.addSlider("Prox REALTIME", fProxFactor, 1.0f, 20.0f);
-    gui.addSlider("Attractor Vel REALTIME", fAttractionVelocity, 0.1f, 2.0f);
-    gui.addSlider("Attractor Life REALTIME", fAttractorLife, 0.1f, 2.0f);
-    gui.addSlider("Random Max", iMaxRandomParticles, 50, 500);
-    gui.addSlider("Random Delta", iDeltaRandomParticles, 0, 100);
+    gui.addSlider("Attractor Vel RT", fAttractionVelocity, 0.1f, 2.0f);
+    gui.addSlider("Attractor Life RT", fAttractorLife, 0.1f, 2.0f);
+    gui.addSlider("FBO Alpha RT", iFboAlpha, 0, 255);
+    gui.addSlider("Path Radius", fPathRadius, 2.0f, 60.0f);
     gui.addSlider("Min Particle Size", fMinParticleSize, 1.0f, 4.0f);
     gui.addSlider("Max Particle Size", fMaxParticleSize, 1.0f, 20.0f);
+    gui.addSlider("Random Max", iMaxRandomParticles, 50, 500);
+    gui.addSlider("Random Delta", iDeltaRandomParticles, 0, 100);
+    gui.addToggle("Randomize", bRandomizeParticles);
     gui.addButton("Reset particles", bResetData);
-
+    
     gui.addPage("Colors");
     gui.addColorPicker("Positivo", f4Green); 
     gui.addColorPicker("Neutro", f4Yellow); 
     gui.addColorPicker("Negativo", f4Red); 
     gui.addColorPicker("Ghosts", f4Gray); 
     gui.addColorPicker("Highlight", f4Highlight);
-    
-    gui.addPage("Kinect IDs");
-    gui.addSlider("Left Kinect ID", iLeftKinectId, 0, 1);
-    gui.addSlider("Right Kinect ID", iRightKinectId, 0, 1);
     
     gui.loadFromXML();
     gui.show();
@@ -110,14 +115,12 @@ void testApp::setup(){
     // --------------------------------------------
     // MARK: KINECT SETUP
     
-    #ifdef USE_TWO_KINECTS
+    if(bTwoKinects) {
         kinect.setup(true, iLeftKinectId, iRightKinectId);
-    #endif
-        
-    #ifndef USE_TWO_KINECTS
-        kinect.setup(false);        
-    #endif
-    
+    } else {
+        kinect.setup(false);
+    }
+
     
     // --------------------------------------------
     // MARK: FBO SETUP
@@ -128,64 +131,20 @@ void testApp::setup(){
     // --------------------------------------------
     // MARK: DATA SETUP
     
-    setupData();
+    xmlThread.startThread(true, false);
+    hasInitiated = false;
     
     
     // --------------------------------------------
     // MARK: PARTICLES SETUP
     
-    doPersonalPanelAttraction     = false;
+    doStreetPanelAttraction       = false;
     doNeighborhoodPanelAttraction = false;
     doCityPanelAttraction         = false;
     isMousePressed                = false;
     
     initPaths();
     initParticles();
-        
-}
-
-
-//--------------------------------------------------------------
-// MARK: DATA
-//--------------------------------------------------------------
-void testApp::setupData() {
-    
-        // generating random values
-        int delta = iMaxRandomParticles * ((100.0-iDeltaRandomParticles)/100.0);
-        data.generateRandomValues(delta, iMaxRandomParticles);
-        
-        // getting the values
-        personalData[POSITIVE] = data.getPersonalPositives();
-        personalData[NEUTRAL]  = data.getPersonalNeutrals();
-        personalData[NEGATIVE] = data.getPersonalNegatives();
-        
-        neighborhoodData[POSITIVE] = data.getNeighborhoodPositives();
-        neighborhoodData[NEUTRAL]  = data.getNeighborhoodNeutrals();
-        neighborhoodData[NEGATIVE] = data.getNeighborhoodNegatives();
-        
-        cityData[POSITIVE] = data.getCityPositives();
-        cityData[NEUTRAL]  = data.getCityNeutrals();
-        cityData[NEGATIVE] = data.getCityNegatives();
-        
-        // logging the data
-        string datalog = "- DATA --------------------------------------------- \n";    
-        datalog += "personal     (";
-        datalog += ofToString(personalData[POSITIVE]+personalData[NEUTRAL]+personalData[NEGATIVE]) + "): ";
-        datalog += ofToString(personalData[POSITIVE]) + " / "; 
-        datalog += ofToString(personalData[NEUTRAL]) + " / ";
-        datalog += ofToString(personalData[NEGATIVE]) + "\n";
-        datalog += "neighborhood (";
-        datalog += ofToString(neighborhoodData[POSITIVE]+neighborhoodData[NEUTRAL]+neighborhoodData[NEGATIVE]) + "): ";
-        datalog += ofToString(neighborhoodData[POSITIVE]) + " / "; 
-        datalog += ofToString(neighborhoodData[NEUTRAL]) + " / ";
-        datalog += ofToString(neighborhoodData[NEGATIVE]) + "\n";
-        datalog += "city         (";
-        datalog += ofToString(cityData[POSITIVE]+cityData[NEUTRAL]+cityData[NEGATIVE]) + "): ";
-        datalog += ofToString(cityData[POSITIVE]) + " / "; 
-        datalog += ofToString(cityData[NEUTRAL]) + " / ";
-        datalog += ofToString(cityData[NEGATIVE]) + "\n";
-        datalog += "---------------------------------------------------- \n";
-        ofLog(OF_LOG_NOTICE, datalog);
         
 }
 
@@ -201,40 +160,52 @@ void testApp::initParticles() {
     GRAY      = ofColor(f4Gray[0]*255,      f4Gray[1]*255,      f4Gray[2]*255,      f4Gray[3]*255);
     HIGHLIGHT = ofColor(f4Highlight[0]*255, f4Highlight[1]*255, f4Highlight[2]*255, f4Highlight[3]*255);     
     
-    personalParticles.clear();    
+    streetParticles.clear();    
     neighborhoodParticles.clear();
     cityParticles.clear();
     
-    addParticles(personalParticles, personalData[NEUTRAL],  GRAY,   *personalPath);
-    addParticles(personalParticles, personalData[NEGATIVE], RED,    *personalPath);
-    addParticles(personalParticles, personalData[NEUTRAL],  YELLOW, *personalPath);
-    addParticles(personalParticles, personalData[POSITIVE], GREEN,  *personalPath);
+    // logging the data
+    string datalog = "\n";
+    datalog += "- DATA --------------------------------------------- \n";
+    datalog += "street       (";
+    datalog += ofToString(data.getStreetPositives()+data.getStreetNeutrals()+data.getStreetNegatives()) + "): ";
+    datalog += ofToString(data.getStreetPositives()) + " / ";
+    datalog += ofToString(data.getStreetNeutrals()) + " / ";
+    datalog += ofToString(data.getStreetNegatives()) + "\n";
+    datalog += "neighborhood (";
+    datalog += ofToString(data.getNeighborhoodPositives()+data.getNeighborhoodNeutrals()+data.getNeighborhoodNegatives()) + "): ";
+    datalog += ofToString(data.getNeighborhoodPositives()) + " / ";
+    datalog += ofToString(data.getNeighborhoodNeutrals()) + " / ";
+    datalog += ofToString(data.getNeighborhoodNegatives()) + "\n";
+    datalog += "city         (";
+    datalog += ofToString(data.getCityPositives()+data.getCityNeutrals()+data.getCityNegatives()) + "): ";
+    datalog += ofToString(data.getCityPositives()) + " / ";
+    datalog += ofToString(data.getCityNeutrals()) + " / ";
+    datalog += ofToString(data.getCityNegatives()) + "\n";
+    datalog += "---------------------------------------------------- \n";
+    ofLogNotice() << datalog;
     
-    addParticles(neighborhoodParticles, neighborhoodData[NEUTRAL],  GRAY,   *neighborhoodPath);
-    addParticles(neighborhoodParticles, neighborhoodData[NEGATIVE], RED,    *neighborhoodPath);
-    addParticles(neighborhoodParticles, neighborhoodData[NEUTRAL],  YELLOW, *neighborhoodPath);
-    addParticles(neighborhoodParticles, neighborhoodData[POSITIVE], GREEN,  *neighborhoodPath);
+    addParticles(streetParticles, 0,  GRAY,   *streetPath); // GHOSTS
+    addParticles(streetParticles, data.getStreetNegatives(), RED,    *streetPath);
+    addParticles(streetParticles, data.getStreetNeutrals(),  YELLOW, *streetPath);
+    addParticles(streetParticles, data.getStreetPositives(), GREEN,  *streetPath);
     
-    addParticles(cityParticles, cityData[NEUTRAL],  GRAY,   *cityPath);
-    addParticles(cityParticles, cityData[NEGATIVE], RED,    *cityPath);
-    addParticles(cityParticles, cityData[NEUTRAL],  YELLOW, *cityPath);
-    addParticles(cityParticles, cityData[POSITIVE], GREEN,  *cityPath);
+    addParticles(neighborhoodParticles, 0,  GRAY,   *neighborhoodPath); // GHOSTS
+    addParticles(neighborhoodParticles, data.getNeighborhoodNegatives(), RED,    *neighborhoodPath);
+    addParticles(neighborhoodParticles, data.getNeighborhoodNeutrals(),  YELLOW, *neighborhoodPath);
+    addParticles(neighborhoodParticles, data.getNeighborhoodPositives(), GREEN,  *neighborhoodPath);
+    
+    addParticles(cityParticles, 0,  GRAY,   *cityPath); // GHOSTS
+    addParticles(cityParticles, data.getCityNegatives(), RED,    *cityPath);
+    addParticles(cityParticles, data.getCityNeutrals(),  YELLOW, *cityPath);
+    addParticles(cityParticles, data.getCityPositives(), GREEN,  *cityPath);
     
 }
 
 //--------------------------------------------------------------
 void testApp::initPaths() {
-    
-//    personalPath     = new ParticlesPath( fPathRadius, 
-//                                         ofVec2f(FBO_W/10.0, FBO_W), 
-//                                         ofVec2f(FBO_W/10.0, 0) );
-//    neighborhoodPath = new ParticlesPath( fPathRadius, 
-//                                         ofVec2f(FBO_W/10.0 * 5, FBO_H), 
-//                                         ofVec2f(FBO_W/10.0 * 5, 0) );
-//    cityPath         = new ParticlesPath( fPathRadius, 
-//                                         ofVec2f(FBO_W/10.0 * 9, FBO_H), 
-//                                         ofVec2f(FBO_W/10.0 * 9, 0) );
-    personalPath     = new ParticlesPath( fPathRadius, 
+
+    streetPath       = new ParticlesPath( fPathRadius,
                                          ofVec2f(FBO_W/6.0, FBO_W), 
                                          ofVec2f(FBO_W/6.0, 0) );
     neighborhoodPath = new ParticlesPath( fPathRadius, 
@@ -269,9 +240,9 @@ void testApp::runParticles(vector<Particle> &particles, ParticlesPath &path) {
         
         // verify the panel which the particle belongs
         // and if there is an average attractor on it
-        if(&path == personalPath && doPersonalPanelAttraction) {
+        if(&path == streetPath && doStreetPanelAttraction) {
             doAttraction = true;
-            attractor = &attractorPersonalPanel;
+            attractor = &attractorStreetPanel;
         }
         else if(&path == neighborhoodPath && doNeighborhoodPanelAttraction) {
             doAttraction = true;
@@ -336,6 +307,41 @@ void testApp::runParticles(vector<Particle> &particles, ParticlesPath &path) {
 //--------------------------------------------------------------
 void testApp::update(){
     
+    // XML update > data update
+    if(xmlThread.isAvailable() && !bRandomizeParticles) {
+        data.getResultsFromBuffer(xmlThread.getXML());
+        
+        // if it is starting, load the first batch
+        if(!hasInitiated) {
+            hasInitiated = true;
+            bResetData = true;
+        // else, if it already started, add new particles (if it is the case)
+        } else {
+            addParticles(streetParticles, data.getNewStreetPositives(), GREEN,  *streetPath);
+            addParticles(streetParticles, data.getNewStreetNeutrals(), YELLOW,  *streetPath);
+            addParticles(streetParticles, data.getNewStreetNegatives(), RED,  *streetPath);
+
+            addParticles(neighborhoodParticles, data.getNewNeighborhoodPositives(), GREEN,  *neighborhoodPath);
+            addParticles(neighborhoodParticles, data.getNewNeighborhoodNeutrals(), YELLOW,  *neighborhoodPath);
+            addParticles(neighborhoodParticles, data.getNewNeighborhoodNegatives(), RED,  *neighborhoodPath);
+
+            addParticles(cityParticles, data.getNewCityPositives(), GREEN,  *cityPath);
+            addParticles(cityParticles, data.getNewCityNeutrals(), YELLOW,  *cityPath);
+            addParticles(cityParticles, data.getNewCityNegatives(), RED,  *cityPath);
+
+            if(data.getNewStreetPositives() != 0) ofLogVerbose() << "- new street positives: " << data.getStreetPositives() << endl;
+            if(data.getNewStreetNeutrals() != 0)  ofLogVerbose() << "- new street neutrals: " << data.getStreetNeutrals() << endl;
+            if(data.getNewStreetNegatives() != 0) ofLogVerbose() << "- new street negatives: " << data.getStreetNegatives() << endl;
+            if(data.getNewNeighborhoodPositives() != 0) ofLogVerbose() << "- new neighborhood positives: " << data.getNeighborhoodPositives() << endl;
+            if(data.getNewNeighborhoodNeutrals() != 0)  ofLogVerbose() << "- new neighborhood neutrals: " << data.getNeighborhoodNeutrals() << endl;
+            if(data.getNewNeighborhoodNegatives() != 0) ofLogVerbose() << "- new neighborhood negatives: " << data.getNeighborhoodNegatives() << endl;
+            if(data.getNewCityPositives() != 0) ofLogVerbose() << "- new city positives: " << data.getCityPositives() << endl;
+            if(data.getNewCityNeutrals() != 0)  ofLogVerbose() << "- new city neutrals: " << data.getCityNeutrals() << endl;
+            if(data.getNewCityNegatives() != 0) ofLogVerbose() << "- new city negatives: " << data.getCityNegatives() << endl;
+        }
+    }
+    
+    // KINECT update
     kinect.updateThreshPar(iFarThreshold, iNearThreshold);
     kinect.updateBlobPar(iMinBlobSize, iMaxBlobSize, iMaxNumBlobs);
     
@@ -347,13 +353,19 @@ void testApp::update(){
     kinect.update();
     
     if(bResetData) {
+        
+        if(bRandomizeParticles) {
+            // generating random values
+            int delta = iMaxRandomParticles * ((100.0-iDeltaRandomParticles)/100.0);
+            data.generateRandomValues(delta, iMaxRandomParticles);
+        }
+        
         bResetData = false;
-        setupData();
         initPaths();
         initParticles();
+        
     }
 
-    
     // --------------------------------------------
     // MARK: ATTRACTORS FROM BLOBS
 
@@ -361,8 +373,6 @@ void testApp::update(){
     float sumx[3]    = {0.0, 0.0, 0.0};
     float sumy[3]    = {0.0, 0.0, 0.0};
     int   counter[3] = {0, 0, 0};
-    
-    
     
     // destroy dead attractors    
     for(map<int, Attractor>::iterator it = attractors.begin(); it != attractors.end(); it++) {
@@ -419,7 +429,7 @@ void testApp::update(){
         }
 
         
-        // if attractor is located in the first panel - the personal panel
+        // if attractor is located in the first panel - the street panel
         if(attractors[theKey].location.x < FBO_W / 3) {
             sumx[0] += attractors[theKey].location.x;
             sumy[0] += attractors[theKey].location.y;
@@ -441,13 +451,13 @@ void testApp::update(){
     }
     
     
-    // if there are attractors in the first panel - the personal panel,
+    // if there are attractors in the first panel - the street panel,
     // set the panel average attractor
     if(counter[0] > 0) {
-        doPersonalPanelAttraction = true;
-        attractorPersonalPanel.setLocation(ofVec2f(sumx[0]/(float)counter[0], sumy[0]/(float)counter[0]));
+        doStreetPanelAttraction = true;
+        attractorStreetPanel.setLocation(ofVec2f(sumx[0]/(float)counter[0], sumy[0]/(float)counter[0]));
     } else {
-        doPersonalPanelAttraction = false;
+        doStreetPanelAttraction = false;
     }
 
     // if there are attractors in the second panel - the neighborhood panel,
@@ -486,7 +496,7 @@ void testApp::draw(){
     ofSetColor(0, iFboAlpha);
     ofRect(0, 0, FBO_W, FBO_H);
     
-    runParticles(personalParticles, *personalPath);
+    runParticles(streetParticles, *streetPath);
     runParticles(neighborhoodParticles, *neighborhoodPath);
     runParticles(cityParticles, *cityPath);
     
@@ -633,18 +643,16 @@ void testApp::drawGUI() {
         kinect.drawContour(iLeftMargin, iTopMargin + iDrawHeight + 20, iDrawWidth, iDrawHeight);
         ofRect(iLeftMargin, iTopMargin + iDrawHeight + 20, iDrawWidth, iDrawHeight);
         
-#ifdef USE_TWO_KINECTS
-        
-        kinect.drawDepth(iLeftMargin + iDrawWidth + 20, iTopMargin, iDrawWidth, iDrawHeight, true);
-        ofRect(iLeftMargin + iDrawWidth + 20, iTopMargin, iDrawWidth, iDrawHeight);
-        ofDrawBitmapString("Kinect 2", iLeftMargin + iDrawWidth + 25, iTopMargin + 15);
-        
-        kinect.drawThreshImg(iLeftMargin + iDrawWidth + 20, iTopMargin + iDrawHeight + 20, iDrawWidth, iDrawHeight, true);
-        kinect.drawContour(iLeftMargin + iDrawWidth + 20, iTopMargin + iDrawHeight + 20, iDrawWidth, iDrawHeight, true);
-        
-        ofRect(iLeftMargin + iDrawWidth + 20, iTopMargin + iDrawHeight + 20, iDrawWidth, iDrawHeight);
-        
-#endif
+        if(bTwoKinects) {
+            kinect.drawDepth(iLeftMargin + iDrawWidth + 20, iTopMargin, iDrawWidth, iDrawHeight, true);
+            ofRect(iLeftMargin + iDrawWidth + 20, iTopMargin, iDrawWidth, iDrawHeight);
+            ofDrawBitmapString("Kinect 2", iLeftMargin + iDrawWidth + 25, iTopMargin + 15);
+            
+            kinect.drawThreshImg(iLeftMargin + iDrawWidth + 20, iTopMargin + iDrawHeight + 20, iDrawWidth, iDrawHeight, true);
+            kinect.drawContour(iLeftMargin + iDrawWidth + 20, iTopMargin + iDrawHeight + 20, iDrawWidth, iDrawHeight, true);
+            
+            ofRect(iLeftMargin + iDrawWidth + 20, iTopMargin + iDrawHeight + 20, iDrawWidth, iDrawHeight);
+        }
         
     }
     
@@ -675,6 +683,7 @@ void testApp::drawGUI() {
 //--------------------------------------------------------------
 void testApp::exit() {
 
+    xmlThread.stopThread();
     kinect.close();
 
 }

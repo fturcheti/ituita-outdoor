@@ -9,6 +9,7 @@
 #define ituita_outdoor_ituitaData_h
 
 #include "ofMain.h"
+#include "ofxXmlSettings.h"
 
 #define NEGATIVE 0
 #define NEUTRAL  1
@@ -20,10 +21,10 @@ class ituitaData {
     
         ituitaData();
         
-        int getPersonalNegatives();
-        int getPersonalNeutrals();
-        int getPersonalPositives();
-        
+        int getStreetNegatives();
+        int getStreetNeutrals();
+        int getStreetPositives();
+    
         int getNeighborhoodNegatives();
         int getNeighborhoodNeutrals();
         int getNeighborhoodPositives();
@@ -31,17 +32,37 @@ class ituitaData {
         int getCityNegatives();
         int getCityNeutrals();
         int getCityPositives();
-        
+
+        int getNewStreetNegatives();
+        int getNewStreetNeutrals();
+        int getNewStreetPositives();
+
+        int getNewNeighborhoodNegatives();
+        int getNewNeighborhoodNeutrals();
+        int getNewNeighborhoodPositives();
+
+        int getNewCityNegatives();
+        int getNewCityNeutrals();
+        int getNewCityPositives();
+
         void generateRandomValues(int min, int max);
+        void getResultsFromBuffer(string buffer);
     
     private:
     
         void initDataArrays();
-        
+        void loadRegionData(int *old, int *current, int pos, int neu, int neg);
+    
         // DATA ARRAYS
-        int personalData[3]; 
+        int streetData[3]; 
         int neighborhoodData[3];
-        int cityData[3];   
+        int cityData[3];
+        // DATA ARRAYS to keep track of modified data
+        int oldStreetData[3];
+        int oldNeighborhoodData[3];
+        int oldCityData[3];
+    
+        ofxXmlSettings xml;
     
 };
 
