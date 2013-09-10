@@ -328,7 +328,8 @@ void testApp::update(){
             addParticles(cityParticles, data.getNewCityPositives(), GREEN,  *cityPath);
             addParticles(cityParticles, data.getNewCityNeutrals(), YELLOW,  *cityPath);
             addParticles(cityParticles, data.getNewCityNegatives(), RED,  *cityPath);
-
+            
+            // logging the addition of new particles
             if(data.getNewStreetPositives() != 0) ofLogVerbose() << "- new street positives: " << data.getStreetPositives() << endl;
             if(data.getNewStreetNeutrals() != 0)  ofLogVerbose() << "- new street neutrals: " << data.getStreetNeutrals() << endl;
             if(data.getNewStreetNegatives() != 0) ofLogVerbose() << "- new street negatives: " << data.getStreetNegatives() << endl;

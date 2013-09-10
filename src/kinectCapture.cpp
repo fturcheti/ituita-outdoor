@@ -316,19 +316,14 @@ void kinectCapture::update() {
             
             
             // DO: ASSIGN NEW CLOUD TO <POINT CLOUD>
-            
             pointCloud.clear();
                      
             for (int y = 0; y < KIN_H; y++) {
                 for (int x = KIN_OUTPUT_W; x > 0; x--) {
-                    if (x <= KIN2_INTERS_W) {
+                    if ( x <= ( KIN_OUTPUT_W/2 ) ) {
                         pointCloud.push_back(ofPoint(normWidth(x, true), normHeight(y), normDepth((int)kinect1.getDistanceAt(x, y))));
                     }
-                    else if (x > KIN2_INTERS_W && x <= KIN_W) {
-                        int minDist = kinect1.getDistanceAt(x, y) < kinect2.getDistanceAt(x - KIN2_INTERS_W, y) ? kinect1.getDistanceAt(x, y) : kinect2.getDistanceAt(x - KIN2_INTERS_W, y);
-                        pointCloud.push_back(ofPoint(normWidth(x, true), normHeight(y), normDepth(minDist)));
-                    }
-                    else if (x > KIN2_INTERS_W) {
+                    else {
                         pointCloud.push_back(ofPoint(normWidth(x, true), normHeight(y), normDepth((int)kinect2.getDistanceAt(x - KIN2_INTERS_W, y))));
                     }
                 }
