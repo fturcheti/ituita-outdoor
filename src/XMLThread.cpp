@@ -13,18 +13,34 @@ XMLThread::XMLThread() {
 
 void XMLThread::threadedFunction() {
     while(isThreadRunning()) {
+        // LOCK the thread
         lock();
         
         ofLogVerbose() << "Loading XML... ";
-        ofHttpResponse response = ofLoadURL(LOADING_URL);
-        sXML = response.data;
-        ofLogVerbose() << "loaded." << endl;
-        ofLogVerbose() << sXML << endl;
         
+        // CHECK from which url the data should be loaded
+        string urlToLoad;
+        if(activeURL == TEST_URL) {
+            urlToLoad = testURL;
+        } else {
+            urlToLoad = finalURL;
+        }
+        ofLogVerbose() << "from " << urlToLoad << "...";
+
+        // LOAD the data
+        ofHttpResponse response = ofLoadURL(urlToLoad);
+        sXML = response.data;
+        ofLogVerbose() << "XML loaded.";
+        ofLogVerbose() << sXML;
+        
+        // UNLOCK the thread
         unlock();
         loaded = true;
 
-        ofSleepMillis(LOADING_INTERVAL);
+        // SET the loading interval
+        if(loadingInterval == 0) loadingInterval = LOADING_INTERVAL;
+        ofSleepMillis(loadingInterval);
+        ofLogVerbose() << "Loading interval: " << loadingInterval << " miliseconds";
     }
 }
 
@@ -34,4 +50,20 @@ string XMLThread::getXML() {
 
 bool XMLThread::isAvailable() {
     return loaded;
+}
+
+void XMLThread::setLoadingInterval(int _loadingInterval) {
+    loadingInterval = _loadingInterval;
+}
+
+void XMLThread::setTestURL(string _testURL) {
+    testURL = _testURL;
+}
+
+void XMLThread::setFinalURL(string _finalURL) {
+    finalURL = _finalURL;
+}
+
+void XMLThread::setActiveURL(int _activeURL) {
+    activeURL = _activeURL;
 }

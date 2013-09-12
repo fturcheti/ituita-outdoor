@@ -72,6 +72,8 @@ class testApp : public ofBaseApp{
         int     iTopMargin, iLeftMargin;
         
         int     iMode;
+        int     iNetDataSource;
+        int     iLogLevel;
     
 // --------------------------------------------
 // MARK: CONTROL VARIABLES

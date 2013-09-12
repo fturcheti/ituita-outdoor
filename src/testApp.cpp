@@ -14,7 +14,6 @@
 //--------------------------------------------------------------
 void testApp::setup(){
     
-    ofSetLogLevel(OF_LOG_NOTICE);
     ofSetFrameRate(60);
     ofSetVerticalSync(true);
     ofBackground(30);
@@ -67,39 +66,57 @@ void testApp::setup(){
     bDrawBlobs      = false;
     
     iMode           = 0;
+    iNetDataSource  = 0;
+    iLogLevel       = 0;
     
     bLockKinTilt   = true;
     fKin1TiltAngle = 0;
     fKin2TiltAngle = 0;
     
+    // --------------------------------------------
+    // SETTINGS PAGES
+    // --------------------------------------------
+    // PAGE 1: GENERAL
     gui.addSlider("Display Modes", iMode, 0, 2);
+	string dataSourceTitles[] = {"FINAL", "TEST"};
+    gui.addComboBox("Net Data Source", iNetDataSource, 2, dataSourceTitles);
+	string logLevelTitles[] = {"NOTICE", "VERBOSE"};
+    gui.addComboBox("Log Level", iLogLevel, 2, logLevelTitles);
+    
+    // PAGE 2: KINECTS
+    gui.addPage("Kinects");
+    gui.addToggle("Two Kinects", bTwoKinects);
+    gui.addSlider("Left Kinect ID", iLeftKinectId, 0, 1);
+    gui.addSlider("Right Kinect ID", iRightKinectId, 0, 1);
     gui.addToggle("Lock Tilt Angle", bLockKinTilt);
     gui.addSlider("Kin 1 Tilt Angle", fKin1TiltAngle, -30, 30);
     gui.addSlider("Kin 2 Tilt Angle", fKin2TiltAngle, -30, 30);
+    
+    // PAGE 3: DETECTION
+    gui.addPage("Detection");
     gui.addSlider("Near Threshold", iNearThreshold, 0, 255);
     gui.addSlider("Far Threshold", iFarThreshold, 0, 255);
     gui.addSlider("Min Blob Size", iMinBlobSize, 0, 40000);
     gui.addSlider("Max Blob Size", iMaxBlobSize, 1, 307200);
     gui.addSlider("Max Num Blobs", iMaxNumBlobs, 1, 30);
     
-    gui.addPage("Kinects");
-    gui.addToggle("Two Kinects", bTwoKinects);
-    gui.addSlider("Left Kinect ID", iLeftKinectId, 0, 1);
-    gui.addSlider("Right Kinect ID", iRightKinectId, 0, 1);
-    
+    // PAGE 4: PARTICLES
     gui.addPage("Particles");
-    gui.addSlider("Prox REALTIME", fProxFactor, 1.0f, 20.0f);
-    gui.addSlider("Attractor Vel RT", fAttractionVelocity, 0.1f, 2.0f);
-    gui.addSlider("Attractor Life RT", fAttractorLife, 0.1f, 2.0f);
-    gui.addSlider("FBO Alpha RT", iFboAlpha, 0, 255);
+    gui.addTitle("REALTIME");
+    gui.addSlider("Prox Factor", fProxFactor, 1.0f, 20.0f);
+    gui.addSlider("Attractor Vel", fAttractionVelocity, 0.1f, 2.0f);
+    gui.addSlider("Attractor Life", fAttractorLife, 0.1f, 2.0f);
+    gui.addSlider("FBO Alpha", iFboAlpha, 0, 255);
+    gui.addTitle("RESET NEEDED");
     gui.addSlider("Path Radius", fPathRadius, 2.0f, 60.0f);
     gui.addSlider("Min Particle Size", fMinParticleSize, 1.0f, 4.0f);
     gui.addSlider("Max Particle Size", fMaxParticleSize, 1.0f, 20.0f);
+    gui.addToggle("Randomize", bRandomizeParticles);
     gui.addSlider("Random Max", iMaxRandomParticles, 50, 500);
     gui.addSlider("Random Delta", iDeltaRandomParticles, 0, 100);
-    gui.addToggle("Randomize", bRandomizeParticles);
     gui.addButton("Reset particles", bResetData);
     
+    // PAGE 5: COLORS
     gui.addPage("Colors");
     gui.addColorPicker("Positivo", f4Green); 
     gui.addColorPicker("Neutro", f4Yellow); 
@@ -112,6 +129,15 @@ void testApp::setup(){
     
     isGUIActive = false;
     
+    
+    // --------------------------------------------
+    // MARK: LOG LEVEL
+    if(iLogLevel == 0) {
+        ofSetLogLevel(OF_LOG_NOTICE);
+    } else {
+        ofSetLogLevel(OF_LOG_VERBOSE);
+    }
+
     // --------------------------------------------
     // MARK: KINECT SETUP
     
@@ -131,6 +157,24 @@ void testApp::setup(){
     // --------------------------------------------
     // MARK: DATA SETUP
     
+    // load URLs (final and test) from XML
+    ofxXmlSettings urls;
+    urls.loadFile("_URL.xml");
+    urls.pushTag("urls");
+    string finalURL = urls.getValue("finalURL", "http://ituita.com.br/site/sugestoes/total/");
+    string testURL  = urls.getValue("testURL", "http://fronte.co/dev/ituita/resultados.php");
+    urls.popTag();
+    // complete the finalURL with the current month and year
+    finalURL += ofToString(ofGetYear()) + "/";
+    finalURL += ofToString(ofGetMonth()) + ".xml";
+    
+    // setup the thread that will load the data from the internet
+    xmlThread.setFinalURL(finalURL);
+    xmlThread.setTestURL(testURL);
+    xmlThread.setActiveURL(iNetDataSource);
+    xmlThread.setLoadingInterval(3000);
+    
+    // start the loading thread
     xmlThread.startThread(true, false);
     hasInitiated = false;
     
