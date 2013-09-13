@@ -1,10 +1,21 @@
-//--------------------------------------------------------------
-// [fturcheti] TODO list
-//--------------------------------------------------------------
-//
-//
-//--------------------------------------------------------------
-
+////////////////////////////////////////////////////////////
+//                                                        //
+// This code is part of "ituita-outdoor", an interactive  //
+// software developed by André Mintz and Felipe Turcheti, //
+// in 2012-2013, for the Ituita Project.                  //
+// http://ituita.com.br                                   //
+//                                                        //
+// It was built with, and depends on, open-source tools:  //
+// - openFrameworks v007                                  //
+// - ofxBlob                                              //
+// - ofxCountourFinder                                    //
+// - ofxKinect                                            //
+// - ofxMSAInteractiveObject                              //
+// - ofxOpenCv                                            //
+// - ofxSimpleGuiToo                                      //
+// - ofxXmlSettings                                       //
+//                                                        //
+////////////////////////////////////////////////////////////
 
 #include "testApp.h"
 
@@ -157,24 +168,29 @@ void testApp::setup(){
     // --------------------------------------------
     // MARK: DATA SETUP
     
-    // load URLs (final and test) from XML
+    // LOAD URLs (final and test) from XML
+    // the URLs XML is located in the data folder and named "_URL.xml"
+    // the finalURL node contains the final (production) URL
+    // the testURL node contains the test URL
     ofxXmlSettings urls;
     urls.loadFile("_URL.xml");
     urls.pushTag("urls");
     string finalURL = urls.getValue("finalURL", "http://ituita.com.br/site/sugestoes/total/");
     string testURL  = urls.getValue("testURL", "http://fronte.co/dev/ituita/resultados.php");
     urls.popTag();
-    // complete the finalURL with the current month and year
+    
+    // COMPLETE the finalURL with the current month and year
+    // the finalURL format is: http://ituita.com.br/site/sugestoes/total/[YEAR]/[MONTH].xml
     finalURL += ofToString(ofGetYear()) + "/";
     finalURL += ofToString(ofGetMonth()) + ".xml";
     
-    // setup the thread that will load the data from the internet
+    // SETUP the thread that will load the data from the internet
     xmlThread.setFinalURL(finalURL);
     xmlThread.setTestURL(testURL);
     xmlThread.setActiveURL(iNetDataSource);
     xmlThread.setLoadingInterval(3000);
     
-    // start the loading thread
+    // START the loading thread
     xmlThread.startThread(true, false);
     hasInitiated = false;
     

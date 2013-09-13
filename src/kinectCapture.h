@@ -1,9 +1,27 @@
+////////////////////////////////////////////////////////////
+//                                                        //
+// This code is part of "ituita-outdoor", an interactive  //
+// software developed by André Mintz and Felipe Turcheti, //
+// in 2012-2013, for the Ituita Project.                  //
+// http://ituita.com.br                                   //
+//                                                        //
+// It was built with, and depends on, open-source tools:  //
+// - openFrameworks v007                                  //
+// - ofxBlob                                              //
+// - ofxCountourFinder                                    //
+// - ofxKinect                                            //
+// - ofxMSAInteractiveObject                              //
+// - ofxOpenCv                                            //
+// - ofxSimpleGuiToo                                      //
+// - ofxXmlSettings                                       //
+//                                                        //
+////////////////////////////////////////////////////////////
+
 //
 //  kinectCapture.h
 //  ituita-outdoor
 //
-//  Created by Andr√© Goes Mintz on 7/11/12.
-//  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
+//  Created by André Goes Mintz on 7/11/12.
 //
 
 #ifndef ituita_outdoor_kinectCapture_h
