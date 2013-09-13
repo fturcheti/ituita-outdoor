@@ -32,13 +32,13 @@ ituitaData::ituitaData() {
 
 void ituitaData::initDataArrays() {
     for(int i = 0; i < 3; i++) {
-        streetData[i] = -1;
-        neighborhoodData[i] = -1;
-        cityData[i] = -1;
+        streetData[i]       = 0;
+        neighborhoodData[i] = 0;
+        cityData[i]         = 0;
         
-        oldStreetData[i] = -1;
-        oldNeighborhoodData[i] = -1;
-        oldCityData[i] = -1;
+        oldStreetData[i]       = 0;
+        oldNeighborhoodData[i] = 0;
+        oldCityData[i]         = 0;
     }
 }
 

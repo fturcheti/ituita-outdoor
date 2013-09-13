@@ -107,6 +107,7 @@ class testApp : public ofBaseApp{
 
         bool  bResetData;
         bool  bRandomizeParticles;
+        int   iGhostParticles;
         int   iMaxRandomParticles, iDeltaRandomParticles;
     
         float fProxFactor;
@@ -129,6 +130,7 @@ class testApp : public ofBaseApp{
         vector<Particle> streetParticles;
         vector<Particle> neighborhoodParticles;
         vector<Particle> cityParticles;
+        
     
         ParticlesPath* streetPath;
         ParticlesPath* neighborhoodPath;

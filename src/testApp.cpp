@@ -32,15 +32,23 @@ void testApp::setup(){
     // --------------------------------------------
     // MARK: CONTROL VARIABLES SETUP
     
+    iMode           = 0;
+    iNetDataSource  = 0;
+    iLogLevel       = 0;
+    
+    bTwoKinects     = 1;
+    iLeftKinectId   = 0;
+    iRightKinectId  = 1;
+    
+    bLockKinTilt   = true;
+    fKin1TiltAngle = 0;
+    fKin2TiltAngle = 0;
+    
     iNearThreshold  = 0;
     iFarThreshold   = 255;
     iMinBlobSize    = 1000;
     iMaxBlobSize    = 300000;
     iMaxNumBlobs    = 10;
-    
-    bTwoKinects     = 1;
-    iLeftKinectId   = 0;
-    iRightKinectId  = 1;
 
     iFboAlpha   = 60;
     fPathRadius = (FBO_W / 3.0) / 2.4;
@@ -49,6 +57,7 @@ void testApp::setup(){
     bRandomizeParticles   = false;
     iMaxRandomParticles   = 200;
     iDeltaRandomParticles = 60;
+    iGhostParticles      = 300;
 
     fProxFactor      = 20.0;
     fMinParticleSize = 1.4;
@@ -76,13 +85,7 @@ void testApp::setup(){
     bDrawThreshold  = false;
     bDrawBlobs      = false;
     
-    iMode           = 0;
-    iNetDataSource  = 0;
-    iLogLevel       = 0;
-    
-    bLockKinTilt   = true;
-    fKin1TiltAngle = 0;
-    fKin2TiltAngle = 0;
+
     
     // --------------------------------------------
     // SETTINGS PAGES
@@ -119,6 +122,7 @@ void testApp::setup(){
     gui.addSlider("Attractor Life", fAttractorLife, 0.1f, 2.0f);
     gui.addSlider("FBO Alpha", iFboAlpha, 0, 255);
     gui.addTitle("RESET NEEDED");
+    gui.addSlider("Ghosts", iGhostParticles, 0, 500);
     gui.addSlider("Path Radius", fPathRadius, 2.0f, 60.0f);
     gui.addSlider("Min Particle Size", fMinParticleSize, 1.0f, 4.0f);
     gui.addSlider("Max Particle Size", fMaxParticleSize, 1.0f, 20.0f);
@@ -245,17 +249,20 @@ void testApp::initParticles() {
     datalog += "---------------------------------------------------- \n";
     ofLogNotice() << datalog;
     
-    addParticles(streetParticles, 0,  GRAY,   *streetPath); // GHOSTS
+    // ADDING street particles
+    addParticles(streetParticles, iGhostParticles,  GRAY,   *streetPath);
     addParticles(streetParticles, data.getStreetNegatives(), RED,    *streetPath);
     addParticles(streetParticles, data.getStreetNeutrals(),  YELLOW, *streetPath);
     addParticles(streetParticles, data.getStreetPositives(), GREEN,  *streetPath);
     
-    addParticles(neighborhoodParticles, 0,  GRAY,   *neighborhoodPath); // GHOSTS
+    // ADDING neighborhood particles
+    addParticles(neighborhoodParticles, iGhostParticles,  GRAY,   *neighborhoodPath);
     addParticles(neighborhoodParticles, data.getNeighborhoodNegatives(), RED,    *neighborhoodPath);
     addParticles(neighborhoodParticles, data.getNeighborhoodNeutrals(),  YELLOW, *neighborhoodPath);
     addParticles(neighborhoodParticles, data.getNeighborhoodPositives(), GREEN,  *neighborhoodPath);
     
-    addParticles(cityParticles, 0,  GRAY,   *cityPath); // GHOSTS
+    // ADDING city particles
+    addParticles(cityParticles, iGhostParticles,  GRAY,   *cityPath); // GHOSTS
     addParticles(cityParticles, data.getCityNegatives(), RED,    *cityPath);
     addParticles(cityParticles, data.getCityNeutrals(),  YELLOW, *cityPath);
     addParticles(cityParticles, data.getCityPositives(), GREEN,  *cityPath);
@@ -280,7 +287,21 @@ void testApp::initPaths() {
 //--------------------------------------------------------------
 void testApp::addParticles(vector<Particle> &particles, int number, ofColor color, ParticlesPath &path) {
     
-    for(int i = 0; i < number; i++) {
+    int ghostsDiff = 0;
+    
+    if(color != GRAY && number > 0) {
+        for(int i = 0; (i < particles.size()) && (number-ghostsDiff > 0) ; i++) {
+            Particle* p = &particles[i];
+            
+            if(p->originalColor == GRAY) {
+                p->originalColor  = color;
+                p->highlightColor = color;
+                ghostsDiff++;
+            }
+        }
+    }
+    
+    for(int i = 0; i < number-ghostsDiff; i++) {
         Particle p(path, FBO_W/5.0, FBO_H, color);
         particles.push_back(p);
     }
