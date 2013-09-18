@@ -1,0 +1,14 @@
+<urls>
+    <!-- 
+    FINAL URL FORMAT: 
+    http://ituita.com.br/site/sugestoes/total/[YEAR]/[MONTH].xml
+    
+    EXAMPLE: 
+    http://ituita.com.br/site/sugestoes/total/2013/09.xml
+    
+    Because of this format, the complete final URL is generated in the software
+    by replacing the markers – YYYY and MM –  with the current year and month
+    -->
+    <finalURL><![CDATA[http://ituita.com.br/site/sugestoes/total/YYYY/MM.xml]]></finalURL>
+    <testURL><![CDATA[http://fronte.co/dev/ituita/resultados.php]]></testURL>
+</urls>

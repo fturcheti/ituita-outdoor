@@ -1,0 +1,22 @@
+<controls>
+    <SliderInt_Near_Threshold>
+        <name>Near Threshold</name>
+        <value>0</value>
+    </SliderInt_Near_Threshold>
+    <SliderInt_Far_Threshold>
+        <name>Far Threshold</name>
+        <value>105</value>
+    </SliderInt_Far_Threshold>
+    <SliderInt_Min_Blob_Size>
+        <name>Min Blob Size</name>
+        <value>400</value>
+    </SliderInt_Min_Blob_Size>
+    <SliderInt_Max_Blob_Size>
+        <name>Max Blob Size</name>
+        <value>64512</value>
+    </SliderInt_Max_Blob_Size>
+    <SliderInt_Max_Num_Blobs>
+        <name>Max Num Blobs</name>
+        <value>14</value>
+    </SliderInt_Max_Num_Blobs>
+</controls>

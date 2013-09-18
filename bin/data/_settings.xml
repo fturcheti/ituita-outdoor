@@ -1,0 +1,14 @@
+<controls>
+    <SliderInt_Display_Modes>
+        <name>Display Modes</name>
+        <value>1</value>
+    </SliderInt_Display_Modes>
+    <ComboBox_Net_Data_Source>
+        <name>Net Data Source</name>
+        <value>1</value>
+    </ComboBox_Net_Data_Source>
+    <ComboBox_Log_Level>
+        <name>Log Level</name>
+        <value>1</value>
+    </ComboBox_Log_Level>
+</controls>

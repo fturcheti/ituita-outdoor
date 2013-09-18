@@ -99,6 +99,7 @@ class testApp : public ofBaseApp{
 
         bool  bTwoKinects;
         int   iLeftKinectId, iRightKinectId;
+        int   iKinectsOpeningTries;
         int   iFarThreshold, iNearThreshold;
         int   iMinBlobSize, iMaxBlobSize, iMaxNumBlobs;
         

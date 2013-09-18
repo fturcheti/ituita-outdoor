@@ -27,9 +27,6 @@
 #include "kinectCapture.h"
 #include <iostream>
 
-ofTrueTypeFont font;
-
-
 kinectCapture::kinectCapture() {
     
     //SETUP NORMALIZATION TABLES
@@ -56,11 +53,11 @@ kinectCapture::~kinectCapture() {
     close();
 }
 
-void kinectCapture::setup(bool _bTwoKinects) {
-    setup(_bTwoKinects, 0, 1);
+void kinectCapture::setup(bool _bTwoKinects, int _iOpeningTries) {
+    setup(_bTwoKinects, 0, 1, _iOpeningTries);
 }
 
-void kinectCapture::setup(bool _bTwoKinects, int _iLeftKinectId, int _iRightKinectId) {
+void kinectCapture::setup(bool _bTwoKinects, int _iLeftKinectId, int _iRightKinectId, int _iOpeningTries) {
     
     
     bTwoKinects = _bTwoKinects;
@@ -98,7 +95,7 @@ void kinectCapture::setup(bool _bTwoKinects, int _iLeftKinectId, int _iRightKine
     kinect1.init(false, false);
     success = kinect1.open(_iLeftKinectId);
     
-    while (!success && counter < 10) {
+    while (!success && counter < _iOpeningTries) {
         cout << "Problems found in connecting with Kinect 1. Trying again!" << endl;
         kinect1.close();
         kinect1.init(false, false);
@@ -131,7 +128,7 @@ void kinectCapture::setup(bool _bTwoKinects, int _iLeftKinectId, int _iRightKine
         
         success = kinect2.open(_iRightKinectId);
         
-        while (!success && counter < 10) {
+        while (!success && counter < _iOpeningTries) {
             cout << "Problems found in connecting with Kinect 2. Trying again!" << endl;
             kinect2.close();
             kinect2.init(false, false);
@@ -153,8 +150,7 @@ void kinectCapture::setup(bool _bTwoKinects, int _iLeftKinectId, int _iRightKine
     iMinBlobSize    = 20;
     iMaxBlobSize    = 20000;
     iMaxNumBlobs    = 10;
-        
-    font.loadFont("Ruda-Regular.ttf", 32); 
+
 }
 
 void kinectCapture::update() {
@@ -442,38 +438,6 @@ void kinectCapture::drawNormBlobs(int x, int y, int w, int h){
     ofPushMatrix();
     ofTranslate(x, y);
     
-//    for (int i = 0; i < foundBlobs.size(); i++) {
-//        ofSetColor(0, 255, 0);
-//        ofBeginShape();
-//        for (int j = 0; j < foundBlobs[i].pts.size(); j++) {
-//            ofVertex(foundBlobs[i].pts[j].x * (float)w, foundBlobs[i].pts[j].y * (float)h);
-//        }
-//        ofEndShape();
-//        ofSetColor(0, 0, 255);
-//        
-//// DRAW RAW BOUNDING RECT (WITHOUT ANGLE)
-////        ofRect(foundBlobs[i].boundingRect.x*(float)w, foundBlobs[i].boundingRect.y*(float)h, foundBlobs[i].boundingRect.width*(float)w, foundBlobs[i].boundingRect.height*(float)h);
-//        
-//        
-//// DRAW MINIMAL SIZED ANGLED BOUNDING RECT
-//        ofPushMatrix();
-//        ofTranslate(foundBlobs[i].angleBoundingRect.x * w, foundBlobs[i].angleBoundingRect.y * h);
-//        ofRotate(foundBlobs[i].angle+90, 0.0f, 0.0f, 1.0f);
-//        ofTranslate(-(foundBlobs[i].angleBoundingRect.x * w), -(foundBlobs[i].angleBoundingRect.y * h));                
-//        ofNoFill();
-//        
-//        ofPushStyle();
-//        ofNoFill();
-//        ofRect((foundBlobs[i].angleBoundingRect.x - foundBlobs[i].angleBoundingRect.width/2) * w, (foundBlobs[i].angleBoundingRect.y - foundBlobs[i].angleBoundingRect.height/2) * h, foundBlobs[i].angleBoundingRect.width * w, foundBlobs[i].angleBoundingRect.height * h);
-//        
-//        ofPopStyle();
-//        ofPopMatrix();        
-//        
-//        ofSetColor(255, 0, 0);
-//        //ofDrawBitmapString(ofToString(foundBlobs[i].id), foundBlobs[i].centroid.x*(float)w, foundBlobs[i].centroid.y*(float)h);
-//        font.drawString(ofToString(foundBlobs[i].id), foundBlobs[i].centroid.x*(float)w, foundBlobs[i].centroid.y*(float)h);
-//    }
-
     for (int i = 0; i < activeBlobsIds.size(); i++) {
         ofSetColor(0, 255, 0);
         ofBeginShape();
@@ -482,10 +446,6 @@ void kinectCapture::drawNormBlobs(int x, int y, int w, int h){
         }
         ofEndShape();
         ofSetColor(0, 0, 255);
-        
-        // DRAW RAW BOUNDING RECT (WITHOUT ANGLE)
-        //        ofRect(foundBlobs[i].boundingRect.x*(float)w, foundBlobs[i].boundingRect.y*(float)h, foundBlobs[i].boundingRect.width*(float)w, foundBlobs[i].boundingRect.height*(float)h);
-        
         
         // DRAW MINIMAL SIZED ANGLED BOUNDING RECT
         ofPushMatrix();
@@ -503,7 +463,6 @@ void kinectCapture::drawNormBlobs(int x, int y, int w, int h){
         
         ofSetColor(255, 0, 0);
         ofDrawBitmapString(ofToString(foundBlobsMap[activeBlobsIds[i]].id), foundBlobsMap[activeBlobsIds[i]].centroid.x*(float)w, foundBlobsMap[activeBlobsIds[i]].centroid.y*(float)h);
-        //font.drawString(ofToString(foundBlobsMap[activeBlobsIds[i]].id), foundBlobsMap[activeBlobsIds[i]].centroid.x*(float)w, foundBlobsMap[activeBlobsIds[i]].centroid.y*(float)h);
     }
     
     ofPopMatrix();

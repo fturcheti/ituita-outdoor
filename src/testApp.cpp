@@ -39,7 +39,7 @@ void testApp::setup(){
     bTwoKinects     = 1;
     iLeftKinectId   = 0;
     iRightKinectId  = 1;
-    
+    iKinectsOpeningTries = 5;
     bLockKinTilt   = true;
     fKin1TiltAngle = 0;
     fKin2TiltAngle = 0;
@@ -72,6 +72,7 @@ void testApp::setup(){
     f4Gray[0]      = 102.0/255.0; f4Gray[1]      = 102.0/255.0; f4Gray[2]      = 102.0/255.0; f4Gray[3]      = 255.0/255.0;
     f4Highlight[0] = 255.0/255.0; f4Highlight[1] = 255.0/255.0; f4Highlight[2] = 255.0/255.0; f4Highlight[3] = 255.0/255.0;    
     
+    
     // --------------------------------------------
     // MARK: INTERFACE SETUP
     
@@ -85,28 +86,24 @@ void testApp::setup(){
     bDrawThreshold  = false;
     bDrawBlobs      = false;
     
-
-    
-    // --------------------------------------------
-    // SETTINGS PAGES
-    // --------------------------------------------
-    // PAGE 1: GENERAL
+    // SETTINGS PAGE 1: GENERAL / _settings.xml
     gui.addSlider("Display Modes", iMode, 0, 2);
 	string dataSourceTitles[] = {"FINAL", "TEST"};
     gui.addComboBox("Net Data Source", iNetDataSource, 2, dataSourceTitles);
 	string logLevelTitles[] = {"NOTICE", "VERBOSE"};
     gui.addComboBox("Log Level", iLogLevel, 2, logLevelTitles);
     
-    // PAGE 2: KINECTS
+    // SETTINGS PAGE 2: KINECTS / Kinects_settings.xml
     gui.addPage("Kinects");
     gui.addToggle("Two Kinects", bTwoKinects);
     gui.addSlider("Left Kinect ID", iLeftKinectId, 0, 1);
     gui.addSlider("Right Kinect ID", iRightKinectId, 0, 1);
+    gui.addSlider("Opening Tries", iKinectsOpeningTries, 1, 10);
     gui.addToggle("Lock Tilt Angle", bLockKinTilt);
     gui.addSlider("Kin 1 Tilt Angle", fKin1TiltAngle, -30, 30);
     gui.addSlider("Kin 2 Tilt Angle", fKin2TiltAngle, -30, 30);
     
-    // PAGE 3: DETECTION
+    // SETTINGS PAGE 3: DETECTION / Detection_settings.xml
     gui.addPage("Detection");
     gui.addSlider("Near Threshold", iNearThreshold, 0, 255);
     gui.addSlider("Far Threshold", iFarThreshold, 0, 255);
@@ -114,7 +111,7 @@ void testApp::setup(){
     gui.addSlider("Max Blob Size", iMaxBlobSize, 1, 307200);
     gui.addSlider("Max Num Blobs", iMaxNumBlobs, 1, 30);
     
-    // PAGE 4: PARTICLES
+    // SETTINGS PAGE 4: PARTICLES / Particles_settings.xml
     gui.addPage("Particles");
     gui.addTitle("REALTIME");
     gui.addSlider("Prox Factor", fProxFactor, 1.0f, 20.0f);
@@ -131,7 +128,7 @@ void testApp::setup(){
     gui.addSlider("Random Delta", iDeltaRandomParticles, 0, 100);
     gui.addButton("Reset particles", bResetData);
     
-    // PAGE 5: COLORS
+    // SETTINGS PAGE 5: COLORS
     gui.addPage("Colors");
     gui.addColorPicker("Positivo", f4Green); 
     gui.addColorPicker("Neutro", f4Yellow); 
@@ -147,6 +144,7 @@ void testApp::setup(){
     
     // --------------------------------------------
     // MARK: LOG LEVEL
+    
     if(iLogLevel == 0) {
         ofSetLogLevel(OF_LOG_NOTICE);
     } else {
@@ -157,9 +155,9 @@ void testApp::setup(){
     // MARK: KINECT SETUP
     
     if(bTwoKinects) {
-        kinect.setup(true, iLeftKinectId, iRightKinectId);
+        kinect.setup(true, iLeftKinectId, iRightKinectId, iKinectsOpeningTries);
     } else {
-        kinect.setup(false);
+        kinect.setup(false, iKinectsOpeningTries);
     }
 
     
@@ -179,14 +177,24 @@ void testApp::setup(){
     ofxXmlSettings urls;
     urls.loadFile("_URL.xml");
     urls.pushTag("urls");
-    string finalURL = urls.getValue("finalURL", "http://ituita.com.br/site/sugestoes/total/");
+    string finalURL = urls.getValue("finalURL", "http://ituita.com.br/site/sugestoes/total/YYYY/MM.xml");
     string testURL  = urls.getValue("testURL", "http://fronte.co/dev/ituita/resultados.php");
     urls.popTag();
     
     // COMPLETE the finalURL with the current month and year
+    // ---
     // the finalURL format is: http://ituita.com.br/site/sugestoes/total/[YEAR]/[MONTH].xml
-    finalURL += ofToString(ofGetYear()) + "/";
-    finalURL += ofToString(ofGetMonth()) + ".xml";
+    // example: http://ituita.com.br/site/sugestoes/total/2013/09.xml
+    // ---
+    // get the markers positions
+    int pYear  = finalURL.find("YYYY");
+    int pMonth = finalURL.find("MM");
+    // get the current year and month
+    string currentYear  = ofToString(ofGetYear());
+    string currentMonth = (ofGetMonth() < 10) ? "0"+ofToString(ofGetMonth()) : ofToString(ofGetMonth());
+    // replace the markers in the finalURL Ð YYYY and MM Ð with the current year and month
+    finalURL.replace(pYear, 4, currentYear);
+    finalURL.replace(pMonth, 2, currentMonth);
     
     // SETUP the thread that will load the data from the internet
     xmlThread.setFinalURL(finalURL);
@@ -388,6 +396,9 @@ void testApp::runParticles(vector<Particle> &particles, ParticlesPath &path) {
 //--------------------------------------------------------------
 void testApp::update(){
     
+    // --------------------------------------------
+    // DATA UPDATE
+
     // XML update > data update
     if(xmlThread.isAvailable() && !bRandomizeParticles) {
         data.getResultsFromBuffer(xmlThread.getXML());
@@ -411,19 +422,36 @@ void testApp::update(){
             addParticles(cityParticles, data.getNewCityNegatives(), RED,  *cityPath);
             
             // logging the addition of new particles
-            if(data.getNewStreetPositives() != 0) ofLogVerbose() << "- new street positives: " << data.getStreetPositives() << endl;
-            if(data.getNewStreetNeutrals() != 0)  ofLogVerbose() << "- new street neutrals: " << data.getStreetNeutrals() << endl;
-            if(data.getNewStreetNegatives() != 0) ofLogVerbose() << "- new street negatives: " << data.getStreetNegatives() << endl;
-            if(data.getNewNeighborhoodPositives() != 0) ofLogVerbose() << "- new neighborhood positives: " << data.getNeighborhoodPositives() << endl;
-            if(data.getNewNeighborhoodNeutrals() != 0)  ofLogVerbose() << "- new neighborhood neutrals: " << data.getNeighborhoodNeutrals() << endl;
-            if(data.getNewNeighborhoodNegatives() != 0) ofLogVerbose() << "- new neighborhood negatives: " << data.getNeighborhoodNegatives() << endl;
-            if(data.getNewCityPositives() != 0) ofLogVerbose() << "- new city positives: " << data.getCityPositives() << endl;
-            if(data.getNewCityNeutrals() != 0)  ofLogVerbose() << "- new city neutrals: " << data.getCityNeutrals() << endl;
-            if(data.getNewCityNegatives() != 0) ofLogVerbose() << "- new city negatives: " << data.getCityNegatives() << endl;
+            if(data.getNewStreetPositives() != 0) ofLogVerbose() << "- new street positives: " << data.getStreetPositives();
+            if(data.getNewStreetNeutrals() != 0)  ofLogVerbose() << "- new street neutrals: " << data.getStreetNeutrals();
+            if(data.getNewStreetNegatives() != 0) ofLogVerbose() << "- new street negatives: " << data.getStreetNegatives();
+            if(data.getNewNeighborhoodPositives() != 0) ofLogVerbose() << "- new neighborhood positives: " << data.getNeighborhoodPositives();
+            if(data.getNewNeighborhoodNeutrals() != 0)  ofLogVerbose() << "- new neighborhood neutrals: " << data.getNeighborhoodNeutrals();
+            if(data.getNewNeighborhoodNegatives() != 0) ofLogVerbose() << "- new neighborhood negatives: " << data.getNeighborhoodNegatives();
+            if(data.getNewCityPositives() != 0) ofLogVerbose() << "- new city positives: " << data.getCityPositives();
+            if(data.getNewCityNeutrals() != 0)  ofLogVerbose() << "- new city neutrals: " << data.getCityNeutrals();
+            if(data.getNewCityNegatives() != 0) ofLogVerbose() << "- new city negatives: " << data.getCityNegatives();
         }
     }
     
-    // KINECT update
+    // reset the particles arrays, if it's the case
+    if(bResetData) {
+
+        // check if the new data should be randomized
+        if(bRandomizeParticles) {
+            // generating random values
+            int delta = iMaxRandomParticles * ((100.0-iDeltaRandomParticles)/100.0);
+            data.generateRandomValues(delta, iMaxRandomParticles);
+        }
+        
+        bResetData = false;
+        initPaths();
+        initParticles();
+    }
+    
+    // --------------------------------------------
+    // KINECT UPDATE
+    
     kinect.updateThreshPar(iFarThreshold, iNearThreshold);
     kinect.updateBlobPar(iMinBlobSize, iMaxBlobSize, iMaxNumBlobs);
     
@@ -434,22 +462,8 @@ void testApp::update(){
     
     kinect.update();
     
-    if(bResetData) {
-        
-        if(bRandomizeParticles) {
-            // generating random values
-            int delta = iMaxRandomParticles * ((100.0-iDeltaRandomParticles)/100.0);
-            data.generateRandomValues(delta, iMaxRandomParticles);
-        }
-        
-        bResetData = false;
-        initPaths();
-        initParticles();
-        
-    }
-
     // --------------------------------------------
-    // MARK: ATTRACTORS FROM BLOBS
+    // ATTRACTORS FROM BLOBS
 
     // variables to calculate the average attractor
     float sumx[3]    = {0.0, 0.0, 0.0};
@@ -532,7 +546,6 @@ void testApp::update(){
 
     }
     
-    
     // if there are attractors in the first panel - the street panel,
     // set the panel average attractor
     if(counter[0] > 0) {
@@ -568,7 +581,6 @@ void testApp::update(){
 //--------------------------------------------------------------
 void testApp::draw(){
 
-    // MARK: DRAW PARTICLES TO FBO
     fbo.begin();
     
     glPushAttrib(GL_ALL_ATTRIB_BITS);  

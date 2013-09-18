@@ -42,9 +42,8 @@ class kinectCapture {
     
     kinectCapture();
     virtual ~kinectCapture();
-    
-    void setup(bool _bTwoKinects);
-    void setup(bool _bTwoKinects, int _iLeftKinectId, int iRightKinectId);
+    void setup(bool _bTwoKinects, int _iOpeningTries);
+    void setup(bool _bTwoKinects, int _iLeftKinectId, int iRightKinectId, int _iOpeningTries);
     void update();
     void updateThreshPar(int _iFarThreshold, int _iNearThreshold);
     void updateBlobPar(int _iMinBlobSize, int _iMaxBlobSize, int _iMaxNumBlobs);
@@ -74,7 +73,6 @@ class kinectCapture {
     
     private:
     
-    
     float normWidth(int val, bool _bTwoKinects = true);
     float normHeight(int val);
     float normDepth(int val);
@@ -84,18 +82,12 @@ class kinectCapture {
     // MARK: KINECT AND RELATED OBJECTS DECLARATION
     
     ofxKinect kinect1;
-//    ofxCvGrayscaleImage cvGrayKin1ThreshNear;
-//    ofxCvGrayscaleImage cvGrayKin1ThreshFar;
     ofxCvGrayscaleImage cvGrayKin1;
     ofxCvGrayscaleImage cvGrayKin1Prev;
-//    ofxCvContourFinder  cvContKin1;
 	
     ofxKinect kinect2;
     ofxCvGrayscaleImage cvGrayKin2;
     ofxCvGrayscaleImage cvGrayKin2Prev;
-//    ofxCvGrayscaleImage cvGrayKin2ThreshNear;
-//    ofxCvGrayscaleImage cvGrayKin2ThreshFar;
-//    ofxCvContourFinder  cvContKin2;
     
     // MARK: CONTROL VARIABLES
     

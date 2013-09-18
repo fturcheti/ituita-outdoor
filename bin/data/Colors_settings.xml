@@ -1,0 +1,37 @@
+<controls>
+    <ColorPicker_Positivo>
+        <name>Positivo</name>
+        <values_0>0.000000</values_0>
+        <values_1>0.713726</values_1>
+        <values_2>0.325490</values_2>
+        <values_3>1.000000</values_3>
+    </ColorPicker_Positivo>
+    <ColorPicker_Neutro>
+        <name>Neutro</name>
+        <values_0>0.980392</values_0>
+        <values_1>0.921569</values_1>
+        <values_2>0.203922</values_2>
+        <values_3>1.000000</values_3>
+    </ColorPicker_Neutro>
+    <ColorPicker_Negativo>
+        <name>Negativo</name>
+        <values_0>0.929412</values_0>
+        <values_1>0.156863</values_1>
+        <values_2>0.286275</values_2>
+        <values_3>1.000000</values_3>
+    </ColorPicker_Negativo>
+    <ColorPicker_Ghosts>
+        <name>Ghosts</name>
+        <values_0>0.400000</values_0>
+        <values_1>0.400000</values_1>
+        <values_2>0.400000</values_2>
+        <values_3>1.000000</values_3>
+    </ColorPicker_Ghosts>
+    <ColorPicker_Highlight>
+        <name>Highlight</name>
+        <values_0>1.000000</values_0>
+        <values_1>1.000000</values_1>
+        <values_2>1.000000</values_2>
+        <values_3>1.000000</values_3>
+    </ColorPicker_Highlight>
+</controls>

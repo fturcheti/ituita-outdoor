@@ -1,0 +1,30 @@
+<controls>
+    <Toggle_Two_Kinects>
+        <name>Two Kinects</name>
+        <value>0</value>
+    </Toggle_Two_Kinects>
+    <SliderInt_Left_Kinect_ID>
+        <name>Left Kinect ID</name>
+        <value>1</value>
+    </SliderInt_Left_Kinect_ID>
+    <SliderInt_Right_Kinect_ID>
+        <name>Right Kinect ID</name>
+        <value>0</value>
+    </SliderInt_Right_Kinect_ID>
+    <SliderInt_Opening_Tries>
+        <name>Opening Tries</name>
+        <value>3</value>
+    </SliderInt_Opening_Tries>
+    <Toggle_Lock_Tilt_Angle>
+        <name>Lock Tilt Angle</name>
+        <value>1</value>
+    </Toggle_Lock_Tilt_Angle>
+    <SliderFloat_Kin_1_Tilt_Angle>
+        <name>Kin 1 Tilt Angle</name>
+        <value>0.000000</value>
+    </SliderFloat_Kin_1_Tilt_Angle>
+    <SliderFloat_Kin_2_Tilt_Angle>
+        <name>Kin 2 Tilt Angle</name>
+        <value>0.000000</value>
+    </SliderFloat_Kin_2_Tilt_Angle>
+</controls>
