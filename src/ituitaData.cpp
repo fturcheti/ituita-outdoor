@@ -54,47 +54,70 @@ void ituitaData::generateRandomValues(int min, int max) {
 }
 
 void ituitaData::getResultsFromBuffer(string buffer) {
+    // check if the buffer is not empty
+    if(buffer.empty()) return;
+    
+    // load the XML from the buffer
     xml.loadFromBuffer(buffer);
     
-    xml.pushTag("resultados");
+    // variable to keep track of the validity of the xml tags
+    bool isOK;
     
-        xml.pushTag("rua");
-        loadRegionData(oldStreetData, streetData,
-                       xml.getValue("positivo", 0),
-                       xml.getValue("neutro", 0),
-                       xml.getValue("negativo", 0));
-        xml.popTag();
-        
-        xml.pushTag("bairro");
-        loadRegionData(oldNeighborhoodData, neighborhoodData,
-                       xml.getValue("positivo", 0),
-                       xml.getValue("neutro", 0),
-                       xml.getValue("negativo", 0));
-        xml.popTag();
-        
-        xml.pushTag("cidade");
-        loadRegionData(oldCityData, cityData,
-                       xml.getValue("positivo", 0),
-                       xml.getValue("neutro", 0),
-                       xml.getValue("negativo", 0));
-        xml.popTag();
+    // entering the first level tag and checking its validity
+    isOK = xml.pushTag("resultados");
+    if(!isOK) return;
     
-    xml.popTag();
+    // entering the street tag, checking its validity and getting the data
+    isOK = xml.pushTag("rua");
+    if(!isOK) return;
+    loadRegionData(oldStreetData, streetData,
+                   xml.getValue("positivo", 0),
+                   xml.getValue("neutro", 0),
+                   xml.getValue("negativo", 0));
+    xml.popTag(); // pop "rua"
+    
+    // entering the street tag, checking its validity and getting the data
+    isOK = xml.pushTag("bairro");
+    if(!isOK) return;
+    loadRegionData(oldNeighborhoodData, neighborhoodData,
+                   xml.getValue("positivo", 0),
+                   xml.getValue("neutro", 0),
+                   xml.getValue("negativo", 0));
+    xml.popTag(); // pop "bairro"
+    
+    // entering the street tag, checking its validity and getting the data
+    isOK = xml.pushTag("cidade");
+    if(!isOK) return;
+    loadRegionData(oldCityData, cityData,
+                   xml.getValue("positivo", 0),
+                   xml.getValue("neutro", 0),
+                   xml.getValue("negativo", 0));
+    xml.popTag(); // pop "cidade"
+    
+    xml.popTag(); // pop "resultados"
 }
 
 void ituitaData::loadRegionData(int *old, int *current, int pos, int neu, int neg) {
+    // store the old values Ð to check if they've changed
     old[POSITIVE] = current[POSITIVE];
     old[NEUTRAL]  = current[NEUTRAL];
     old[NEGATIVE] = current[NEGATIVE];
     
+    // calculate the limits for the number of particles per panel
     int sum = pos+neu+neg;
     int limit = maxParticlesPerPanel / particlesMultiplier;
     
+    // verify if the limit is bypassed
     if(sum > limit) {
+        // if so, map the votes to keep the number of particles
+        // between the limits
         pos = ofMap(pos, 0, sum, 0, limit);
         neu = ofMap(neu, 0, sum, 0, limit);
         neg = ofMap(neg, 0, sum, 0, limit);
     }
+    
+    // store the new values Ð
+    // limited by maxParticlesPerPanel and multiplied by particlesMultiplier
     current[POSITIVE] = pos * particlesMultiplier;
     current[NEUTRAL]  = neu * particlesMultiplier;
     current[NEGATIVE] = neg * particlesMultiplier;

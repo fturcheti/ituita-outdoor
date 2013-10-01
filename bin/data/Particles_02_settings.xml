@@ -17,11 +17,11 @@
     </SliderFloat_Min_Particle_Size>
     <SliderFloat_Max_Particle_Size>
         <name>Max Particle Size</name>
-        <value>6.400000</value>
+        <value>6.000000</value>
     </SliderFloat_Max_Particle_Size>
     <SliderInt_Path_Radius>
         <name>Path Radius</name>
-        <value>60</value>
+        <value>80</value>
     </SliderInt_Path_Radius>
     <Toggle_Randomize>
         <name>Randomize</name>

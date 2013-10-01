@@ -36,8 +36,8 @@ Particle::Particle(ParticlesPath &path, float widthLimit, float heightLimit, ofC
     
     location.set( initLocX(), ofRandom(0, heightLimit) );
     r = ofRandom(2, 4);
-    maxForce = ofRandom(0.2, 0.5); //ofRandom(0.05, 0.2);
-    originalMaxSpeed = ofRandom(0.8, 2.0);  //ofRandom(1, 3);
+    maxForce = ofRandom(0.2, 0.5);
+    originalMaxSpeed = ofRandom(0.8, 2.0);
     maxSpeed = originalMaxSpeed;
     acceleration.set(0, 0);
     velocity.set(0.8, -0.8);    

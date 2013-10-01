@@ -419,7 +419,6 @@ void testApp::update(){
             bResetData = true;
         // else, if it already started, add new particles (if it is the case)
         } else {
-            
             if(data.getNewStreetPositives() != 0 || data.getNewStreetNeutrals() != 0 || data.getNewStreetNegatives() != 0 ||
                data.getNewNeighborhoodPositives() != 0 || data.getNewNeighborhoodNeutrals() != 0 || data.getNewNeighborhoodNegatives() != 0 ||
                data.getNewCityPositives() != 0 || data.getNewCityNeutrals() != 0 || data.getNewCityNegatives() != 0) {
@@ -595,16 +594,14 @@ void testApp::draw(){
     fbo.end();
     
     ofEnableAlphaBlending();
-//    ofSetColor(255);
     fbo.draw(0, 0);
-//    drawPanels(fbo);
     ofDisableAlphaBlending();
     
     if(isGUIActive) {
         ofShowCursor();
         drawGUI();
     } else {
-        //ofHideCursor();
+        ofHideCursor();
     }
     
 }
