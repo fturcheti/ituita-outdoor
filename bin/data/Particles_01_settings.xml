@@ -1,0 +1,18 @@
+<controls>
+    <SliderFloat_Prox_Factor>
+        <name>Prox Factor</name>
+        <value>6.700000</value>
+    </SliderFloat_Prox_Factor>
+    <SliderFloat_Attractor_Vel>
+        <name>Attractor Vel</name>
+        <value>0.100000</value>
+    </SliderFloat_Attractor_Vel>
+    <SliderFloat_Attractor_Life>
+        <name>Attractor Life</name>
+        <value>0.100000</value>
+    </SliderFloat_Attractor_Life>
+    <SliderInt_FBO_Alpha>
+        <name>FBO Alpha</name>
+        <value>60</value>
+    </SliderInt_FBO_Alpha>
+</controls>

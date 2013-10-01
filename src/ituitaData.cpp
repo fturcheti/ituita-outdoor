@@ -28,6 +28,9 @@
 
 ituitaData::ituitaData() {
     initDataArrays();
+    
+    maxParticlesPerPanel = 500;
+    particlesMultiplier = 2;
 }
 
 void ituitaData::initDataArrays() {
@@ -84,9 +87,17 @@ void ituitaData::loadRegionData(int *old, int *current, int pos, int neu, int ne
     old[NEUTRAL]  = current[NEUTRAL];
     old[NEGATIVE] = current[NEGATIVE];
     
-    current[POSITIVE] = pos;
-    current[NEUTRAL]  = neu;
-    current[NEGATIVE] = neg;
+    int sum = pos+neu+neg;
+    int limit = maxParticlesPerPanel / particlesMultiplier;
+    
+    if(sum > limit) {
+        pos = ofMap(pos, 0, sum, 0, limit);
+        neu = ofMap(neu, 0, sum, 0, limit);
+        neg = ofMap(neg, 0, sum, 0, limit);
+    }
+    current[POSITIVE] = pos * particlesMultiplier;
+    current[NEUTRAL]  = neu * particlesMultiplier;
+    current[NEGATIVE] = neg * particlesMultiplier;
 }
 
 // --------------------------------------------

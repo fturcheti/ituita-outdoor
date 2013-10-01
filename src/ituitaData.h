@@ -67,6 +67,10 @@ class ituitaData {
         void generateRandomValues(int min, int max);
         void getResultsFromBuffer(string buffer);
     
+        // controllers for the number of particles shown
+        int maxParticlesPerPanel;
+        int particlesMultiplier;
+    
     private:
     
         void initDataArrays();

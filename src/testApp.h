@@ -117,6 +117,9 @@ class testApp : public ofBaseApp{
         float fAttractionVelocity;
         float fAttractorLife;
     
+        int iMaxParticlesPerPanel;
+        int iParticlesMultiplier;
+    
 // --------------------------------------------
 // MARK: DATA
 

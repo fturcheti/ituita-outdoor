@@ -57,7 +57,9 @@ void testApp::setup(){
     bRandomizeParticles   = false;
     iMaxRandomParticles   = 200;
     iDeltaRandomParticles = 60;
-    iGhostParticles      = 300;
+    iGhostParticles      = 3;
+    iMaxParticlesPerPanel = 10;
+    iParticlesMultiplier = 2;
 
     fProxFactor      = 20.0;
     fMinParticleSize = 1.4;
@@ -111,18 +113,23 @@ void testApp::setup(){
     gui.addSlider("Max Blob Size", iMaxBlobSize, 1, 307200);
     gui.addSlider("Max Num Blobs", iMaxNumBlobs, 1, 30);
     
-    // SETTINGS PAGE 4: PARTICLES / Particles_settings.xml
-    gui.addPage("Particles");
+    // SETTINGS PAGE 4: PARTICLES / Particles_01_settings.xml
+    gui.addPage("Particles_01");
     gui.addTitle("REALTIME");
     gui.addSlider("Prox Factor", fProxFactor, 1.0f, 20.0f);
     gui.addSlider("Attractor Vel", fAttractionVelocity, 0.1f, 2.0f);
     gui.addSlider("Attractor Life", fAttractorLife, 0.1f, 2.0f);
     gui.addSlider("FBO Alpha", iFboAlpha, 0, 255);
+    
+    // SETTINGS PAGE 5: PARTICLES / Particles_02_settings.xml
+    gui.addPage("Particles_02");
     gui.addTitle("RESET NEEDED");
-    gui.addSlider("Ghosts", iGhostParticles, 0, 500);
-    gui.addSlider("Path Radius", fPathRadius, 2.0f, 60.0f);
+    gui.addSlider("Ghosts (x100)", iGhostParticles, 0, 5);
+    gui.addSlider("Max Part/Panel (x100)", iMaxParticlesPerPanel, 5, 20);
+    gui.addSlider("Particles/Vote", iParticlesMultiplier, 1, 10);
     gui.addSlider("Min Particle Size", fMinParticleSize, 1.0f, 4.0f);
     gui.addSlider("Max Particle Size", fMaxParticleSize, 1.0f, 20.0f);
+    gui.addSlider("Path Radius", fPathRadius, 2.0f, 60.0f);
     gui.addToggle("Randomize", bRandomizeParticles);
     gui.addSlider("Random Max", iMaxRandomParticles, 50, 500);
     gui.addSlider("Random Delta", iDeltaRandomParticles, 0, 100);
@@ -170,10 +177,10 @@ void testApp::setup(){
     // --------------------------------------------
     // MARK: DATA SETUP
     
-    // LOAD URLs (final and test) from XML
-    // the URLs XML is located in the data folder and named "_URL.xml"
-    // the finalURL node contains the final (production) URL
-    // the testURL node contains the test URL
+    // LOAD XML URLs (final/production and test)
+    // the file that holds this data is named "_URL.xml" and located in the data folder
+    // the finalURL node contains the final (production) XML URL
+    // the testURL node contains the test XML URL
     ofxXmlSettings urls;
     urls.loadFile("_URL.xml");
     urls.pushTag("urls");
@@ -236,6 +243,9 @@ void testApp::initParticles() {
     neighborhoodParticles.clear();
     cityParticles.clear();
     
+    data.particlesMultiplier  = iParticlesMultiplier;
+    data.maxParticlesPerPanel = iMaxParticlesPerPanel * 100;
+    
     // logging the data
     string datalog = "\n";
     datalog += "- DATA --------------------------------------------- \n";
@@ -258,19 +268,19 @@ void testApp::initParticles() {
     ofLogNotice() << datalog;
     
     // ADDING street particles
-    addParticles(streetParticles, iGhostParticles,  GRAY,   *streetPath);
+    addParticles(streetParticles, iGhostParticles * 100,  GRAY,   *streetPath);
     addParticles(streetParticles, data.getStreetNegatives(), RED,    *streetPath);
     addParticles(streetParticles, data.getStreetNeutrals(),  YELLOW, *streetPath);
     addParticles(streetParticles, data.getStreetPositives(), GREEN,  *streetPath);
     
     // ADDING neighborhood particles
-    addParticles(neighborhoodParticles, iGhostParticles,  GRAY,   *neighborhoodPath);
+    addParticles(neighborhoodParticles, iGhostParticles * 100,  GRAY,   *neighborhoodPath);
     addParticles(neighborhoodParticles, data.getNeighborhoodNegatives(), RED,    *neighborhoodPath);
     addParticles(neighborhoodParticles, data.getNeighborhoodNeutrals(),  YELLOW, *neighborhoodPath);
     addParticles(neighborhoodParticles, data.getNeighborhoodPositives(), GREEN,  *neighborhoodPath);
     
     // ADDING city particles
-    addParticles(cityParticles, iGhostParticles,  GRAY,   *cityPath); // GHOSTS
+    addParticles(cityParticles, iGhostParticles * 100,  GRAY,   *cityPath); // GHOSTS
     addParticles(cityParticles, data.getCityNegatives(), RED,    *cityPath);
     addParticles(cityParticles, data.getCityNeutrals(),  YELLOW, *cityPath);
     addParticles(cityParticles, data.getCityPositives(), GREEN,  *cityPath);
@@ -409,28 +419,13 @@ void testApp::update(){
             bResetData = true;
         // else, if it already started, add new particles (if it is the case)
         } else {
-            addParticles(streetParticles, data.getNewStreetPositives(), GREEN,  *streetPath);
-            addParticles(streetParticles, data.getNewStreetNeutrals(), YELLOW,  *streetPath);
-            addParticles(streetParticles, data.getNewStreetNegatives(), RED,  *streetPath);
-
-            addParticles(neighborhoodParticles, data.getNewNeighborhoodPositives(), GREEN,  *neighborhoodPath);
-            addParticles(neighborhoodParticles, data.getNewNeighborhoodNeutrals(), YELLOW,  *neighborhoodPath);
-            addParticles(neighborhoodParticles, data.getNewNeighborhoodNegatives(), RED,  *neighborhoodPath);
-
-            addParticles(cityParticles, data.getNewCityPositives(), GREEN,  *cityPath);
-            addParticles(cityParticles, data.getNewCityNeutrals(), YELLOW,  *cityPath);
-            addParticles(cityParticles, data.getNewCityNegatives(), RED,  *cityPath);
             
-            // logging the addition of new particles
-            if(data.getNewStreetPositives() != 0) ofLogVerbose() << "- new street positives: " << data.getStreetPositives();
-            if(data.getNewStreetNeutrals() != 0)  ofLogVerbose() << "- new street neutrals: " << data.getStreetNeutrals();
-            if(data.getNewStreetNegatives() != 0) ofLogVerbose() << "- new street negatives: " << data.getStreetNegatives();
-            if(data.getNewNeighborhoodPositives() != 0) ofLogVerbose() << "- new neighborhood positives: " << data.getNeighborhoodPositives();
-            if(data.getNewNeighborhoodNeutrals() != 0)  ofLogVerbose() << "- new neighborhood neutrals: " << data.getNeighborhoodNeutrals();
-            if(data.getNewNeighborhoodNegatives() != 0) ofLogVerbose() << "- new neighborhood negatives: " << data.getNeighborhoodNegatives();
-            if(data.getNewCityPositives() != 0) ofLogVerbose() << "- new city positives: " << data.getCityPositives();
-            if(data.getNewCityNeutrals() != 0)  ofLogVerbose() << "- new city neutrals: " << data.getCityNeutrals();
-            if(data.getNewCityNegatives() != 0) ofLogVerbose() << "- new city negatives: " << data.getCityNegatives();
+            if(data.getNewStreetPositives() != 0 || data.getNewStreetNeutrals() != 0 || data.getNewStreetNegatives() != 0 ||
+               data.getNewNeighborhoodPositives() != 0 || data.getNewNeighborhoodNeutrals() != 0 || data.getNewNeighborhoodNegatives() != 0 ||
+               data.getNewCityPositives() != 0 || data.getNewCityNeutrals() != 0 || data.getNewCityNegatives() != 0) {
+                
+                bResetData = true;
+            }
         }
     }
     

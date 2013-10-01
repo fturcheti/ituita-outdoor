@@ -1,0 +1,42 @@
+<controls>
+    <SliderInt_Ghosts_(x100)>
+        <name>Ghosts (x100)</name>
+        <value>3</value>
+    </SliderInt_Ghosts_(x100)>
+    <SliderInt_Max_Part/Panel_(x100)>
+        <name>Max Part/Panel (x100)</name>
+        <value>10</value>
+    </SliderInt_Max_Part/Panel_(x100)>
+    <SliderInt_Particles/Vote>
+        <name>Particles/Vote</name>
+        <value>2</value>
+    </SliderInt_Particles/Vote>
+    <SliderFloat_Min_Particle_Size>
+        <name>Min Particle Size</name>
+        <value>1.400000</value>
+    </SliderFloat_Min_Particle_Size>
+    <SliderFloat_Max_Particle_Size>
+        <name>Max Particle Size</name>
+        <value>6.400000</value>
+    </SliderFloat_Max_Particle_Size>
+    <SliderInt_Path_Radius>
+        <name>Path Radius</name>
+        <value>60</value>
+    </SliderInt_Path_Radius>
+    <Toggle_Randomize>
+        <name>Randomize</name>
+        <value>0</value>
+    </Toggle_Randomize>
+    <SliderInt_Random_Max>
+        <name>Random Max</name>
+        <value>200</value>
+    </SliderInt_Random_Max>
+    <SliderInt_Random_Delta>
+        <name>Random Delta</name>
+        <value>60</value>
+    </SliderInt_Random_Delta>
+    <Button_Reset_particles>
+        <name>Reset particles</name>
+        <value>0</value>
+    </Button_Reset_particles>
+</controls>

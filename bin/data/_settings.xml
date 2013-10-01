@@ -1,7 +1,7 @@
 <controls>
     <SliderInt_Display_Modes>
         <name>Display Modes</name>
-        <value>1</value>
+        <value>0</value>
     </SliderInt_Display_Modes>
     <ComboBox_Net_Data_Source>
         <name>Net Data Source</name>
