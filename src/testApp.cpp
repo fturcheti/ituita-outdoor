@@ -67,6 +67,7 @@ void testApp::setup(){
     
     fAttractionVelocity = 2.0;
     fAttractorLife      = 0.5;
+    fAttractorRadius    = 2;
     
     f4Green[0]     = 0.0/255.0;   f4Green[1]     = 182.0/255.0; f4Green[2]     = 83.0/255.0;  f4Green[3]     = 255.0/255.0;
     f4Yellow[0]    = 250.0/255.0; f4Yellow[1]    = 235.0/255.0; f4Yellow[2]    = 52.0/255.0;  f4Yellow[3]    = 255.0/255.0;
@@ -119,6 +120,7 @@ void testApp::setup(){
     gui.addSlider("Prox Factor", fProxFactor, 1.0f, 20.0f);
     gui.addSlider("Attractor Vel", fAttractionVelocity, 0.1f, 2.0f);
     gui.addSlider("Attractor Life", fAttractorLife, 0.1f, 2.0f);
+    gui.addSlider("Attractor Radius", fAttractorRadius, 1.0f, 3.0f);
     gui.addSlider("FBO Alpha", iFboAlpha, 0, 255);
     
     // SETTINGS PAGE 5: PARTICLES / Particles_02_settings.xml
@@ -355,7 +357,13 @@ void testApp::runParticles(vector<Particle> &particles, ParticlesPath &path) {
         // if there is an average attractor in this particle's panel, follow it
         if(doAttraction) {
             p->maxSpeed = fAttractionVelocity;
-            p->seek(attractor->location);
+            
+            // randomize the attractor location in a constrained area
+            ofVec2f loc;
+            float rad = FBO_W/fAttractorRadius;
+            loc.set(attractor->location.x + ofRandom(-rad, rad), attractor->location.y + ofRandom(-rad, rad));
+            
+            p->seek(loc);
         // else, follow the path
         } else {
             p->maxSpeed = p->originalMaxSpeed;

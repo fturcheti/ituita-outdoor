@@ -11,6 +11,10 @@
         <name>Attractor Life</name>
         <value>0.100000</value>
     </SliderFloat_Attractor_Life>
+    <SliderFloat_Attractor_Radius>
+        <name>Attractor Radius</name>
+        <value>1.990000</value>
+    </SliderFloat_Attractor_Radius>
     <SliderInt_FBO_Alpha>
         <name>FBO Alpha</name>
         <value>60</value>
