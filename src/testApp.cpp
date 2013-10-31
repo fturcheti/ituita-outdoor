@@ -126,12 +126,12 @@ void testApp::setup(){
     // SETTINGS PAGE 5: PARTICLES / Particles_02_settings.xml
     gui.addPage("Particles_02");
     gui.addTitle("RESET NEEDED");
-    gui.addSlider("Ghosts (x100)", iGhostParticles, 0, 5);
-    gui.addSlider("Max Part/Panel (x100)", iMaxParticlesPerPanel, 5, 20);
-    gui.addSlider("Particles/Vote", iParticlesMultiplier, 1, 10);
+    gui.addSlider("Ghosts x100", iGhostParticles, 0, 5);
+    gui.addSlider("Max Part per Panel x100", iMaxParticlesPerPanel, 5, 20);
+    gui.addSlider("Particles per Vote", iParticlesMultiplier, 1, 10);
     gui.addSlider("Min Particle Size", fMinParticleSize, 1.0f, 4.0f);
     gui.addSlider("Max Particle Size", fMaxParticleSize, 1.0f, 20.0f);
-    gui.addSlider("Path Radius", fPathRadius, 2.0f, 60.0f);
+    gui.addSlider("Path Radius", fPathRadius, 2.0f, 80.0f);
     gui.addToggle("Randomize", bRandomizeParticles);
     gui.addSlider("Random Max", iMaxRandomParticles, 50, 500);
     gui.addSlider("Random Delta", iDeltaRandomParticles, 0, 100);

@@ -1,16 +1,16 @@
 <controls>
-    <SliderInt_Ghosts_(x100)>
-        <name>Ghosts (x100)</name>
+    <SliderInt_Ghosts_x100>
+        <name>Ghosts x100</name>
         <value>3</value>
-    </SliderInt_Ghosts_(x100)>
-    <SliderInt_Max_Part/Panel_(x100)>
-        <name>Max Part/Panel (x100)</name>
+    </SliderInt_Ghosts_x100>
+    <SliderInt_Max_Part_per_Panel_x100>
+        <name>Max Part per Panel x100</name>
         <value>10</value>
-    </SliderInt_Max_Part/Panel_(x100)>
-    <SliderInt_Particles/Vote>
-        <name>Particles/Vote</name>
+    </SliderInt_Max_Part_per_Panel_x100>
+    <SliderInt_Particles_per_Vote>
+        <name>Particles per Vote</name>
         <value>2</value>
-    </SliderInt_Particles/Vote>
+    </SliderInt_Particles_per_Vote>
     <SliderFloat_Min_Particle_Size>
         <name>Min Particle Size</name>
         <value>1.400000</value>

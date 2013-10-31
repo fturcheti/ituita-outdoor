@@ -1,7 +1,7 @@
 <controls>
     <SliderFloat_Prox_Factor>
         <name>Prox Factor</name>
-        <value>6.700000</value>
+        <value>15.000000</value>
     </SliderFloat_Prox_Factor>
     <SliderFloat_Attractor_Vel>
         <name>Attractor Vel</name>
